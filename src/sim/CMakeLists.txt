@@ -39,6 +39,8 @@ set(SOURCES_SPACES
     space_cylinderP.cc
     space_polygonZ.cc
     space_ring.cc
+    space_dynamic_prop.cc
+    space_dynamic_ellipse.cc
 )
 list(TRANSFORM SOURCES_SPACES PREPEND "spaces/")
 
