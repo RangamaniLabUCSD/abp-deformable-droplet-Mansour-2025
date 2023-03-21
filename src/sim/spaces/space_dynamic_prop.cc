@@ -17,23 +17,10 @@ Space * SpaceDynamicProp::newSpace() const
 }
 
 
-Space * SpaceDynamicProp::newSpace(Glossary& opt) const
-{
-    Space * spc = newSpace();
-    
-    if ( spc )
-    {
-        // normal way to set the size:
-        spc->resize(opt);
-    }
-    return spc;
-}
-
-
 void SpaceDynamicProp::clear()
 {
-    tension = 0 ;
-    volume  = 0  ;
+    tension = 0;
+    volume  = 0;
 	SpaceProp::clear();
 }
 
@@ -41,7 +28,6 @@ void SpaceDynamicProp::read(Glossary& glos)
 {
     SpaceProp::read(glos);
 	glos.set(tension, "tension");
-
 }
 
 

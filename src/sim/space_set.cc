@@ -50,11 +50,14 @@ Property * SpaceSet::newProperty(const std::string& cat,const std::string& nom, 
     if ( cat == "space" )
     {
         std::string shape;
-        if ( opt.peek(shape, "shape") )
+        if ( opt.peek(shape, "geometry") )
         {
-            if ( shape == "dynamic_ellipse" or shape == "contractile")
-                return new SpaceDynamicProp(nom);
+            std::stringstream iss(shape);
+            iss >> shape;
         }
+        else opt.peek(shape, "shape");
+        if ( shape == "dynamic_ellipse" or shape == "contractile")
+            return new SpaceDynamicProp(nom);
         return new SpaceProp(nom);
     }
     return nullptr;

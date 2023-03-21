@@ -22,7 +22,7 @@ public:
     real    tension;
     
     // volume of the ellipse (mutable because changed by const method)
-    mutable real    volume;
+    mutable real volume;
 	
 public:
     
@@ -35,9 +35,6 @@ public:
     
     /// create a new, uninitialized, Space
     Space * newSpace() const;
-
-	/// create a new Space according to specifications
-	Space * newSpace(Glossary&) const;
         
     /// set default values
     void clear();
