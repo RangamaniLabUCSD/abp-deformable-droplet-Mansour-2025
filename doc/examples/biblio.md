@@ -7,10 +7,26 @@
 
 # Cytosim used in other groups
 
-*Please, let us know of any citation we could add*
+*Please, let us know of any citation we could add. This is important for our funders!*
+
+2023
+
+- [Nonaffine Mechanics of Entangled Networks Inspired by Intermediate Filaments](https://doi.org/10.1103/PhysRevLett.131.058101)
+- [Microtubule competition and cell growth recenter the nucleus after anaphase in fission yeast](https://doi.org/10.1091/mbc.E23-01-0034)
+- [Reduction of cortical pulling at mitotic entry facilitates aster centration](https://doi.org/10.1101/2023.03.21.533625)
+- [Self-organization of microtubules: complexity analysis of emergent patterns](https://arxiv.org/abs/2305.00539)
+
+2022
+
+- [Self-assembly of pericentriolar material in interphase cells lacking centrioles](https://doi.org/10.7554/eLife.77892)
+- [The architecture of the actin network can balance the pushing forces produced by growing microtubules.](https://www.biorxiv.org/content/10.1101/2022.01.21.476947v1)
+- [Thermodynamic Control of Activity Patterns in Cytoskeletal Networks](https://doi.org/10.1103/PhysRevLett.129.128002)
+- [Emergence of flagella-like oscillations in single microtubules driven by collective dynein transport](https://www.biorxiv.org/content/10.1101/2022.09.11.507451v1)
+- [Slack-taut transition and emergent stiffness in bioinspired entangled filament networks](https://doi.org/10.48550/arXiv.2206.04043)
 
 2021
 
+- [Mechanical competition alters the cellular interpretation of an endogenous genetic program](https://doi.org/10.1083/jcb.202104107)
 - [Self-organized optimal packing of kinesin-5-driven microtubule asters scales with cell size](https://doi.org/10.1242/jcs.257543)
 - [Effect of plant tubulin kinetic diversification on microtubule lengths](https://www.biorxiv.org/content/10.1101/2021.05.11.443582v1)
 - [Dynein self-organizes while translocating the centrosome in T cells](https://www.molbiolcell.org/doi/abs/10.1091/mbc.E20-10-0668)
@@ -29,19 +45,17 @@
 - [Mechanosensitive single molecule dynamics of myosin II](http://hdl.handle.net/2445/171220)
 - [Reverse-engineering forces responsible for dynamic clustering and spreading of multiple nuclei in developing muscle cells](https://doi.org/10.1091/mbc.E19-12-0711)
 - [Wrinkling instability in 3D active nematics](https://pubs.acs.org/doi/abs/10.1021/acs.nanolett.0c01546)
-- [Deep learning the assembly parameters of growing cytoskeletal networks](https://pure.tue.nl/ws/portalfiles/portal/148470406/Kros_M.F._0875844_BEP_verslag.pdf) Kros, Maury F, Eindhoven University.
 - [Prospects for Declarative Mathematical Modeling of Complex Biological Systems](https://arxiv.org/abs/1804.11044)
 - [Chromosomes function as a barrier to mitotic spindle bipolarity in polyploid cells](https://doi.org/10.1083/jcb.201908006)   
 
 2019
 
-- [Deep learning the assembly parameters of growing cytoskeletal networks](https://pure.tue.nl/ws/portalfiles/portal/148470406/Kros_M.F._0875844_BEP_verslag.pdf)
+- [Deep learning the assembly parameters of growing cytoskeletal networks](https://pure.tue.nl/ws/portalfiles/portal/148470406/Kros_M.F._0875844_BEP_verslag.pdf) by Kros, Maury F, Eindhoven University.
 - [PP2A-B55/SUR-6 collaborates with the nuclear lamina for centrosome separation during mitotic entry](https://doi.org/10.1091/mbc.E18-10-0631)
-- [Spherical spindle shape promotes perpendicular cortical orientation by preventing isometric cortical pulling on both spindle poles during C. elegans female meiosis](http://dx.doi.org/10.1242/dev.178863)  
+- [Spherical spindle shape promotes perpendicular cortical orientation by preventing isometric cortical pulling on both spindle poles during C. elegans female meiosis](http://dx.doi.org/10.1242/dev.178863)[preprin](https://www.biorxiv.org/content/10.1101/596510v1)  
 - [Collective effects of yeast cytoplasmic dynein based microtubule transport](http://dx.doi.org/10.1039/c8sm01434e)  
 - [Prospects for Declarative Mathematical Modeling of Complex Biological Systems](https://arxiv.org/pdf/1804.11044.pdf)  
 - [Visualization of myosin II filament dynamics in remodeling acto-myosin networks with interferometric scattering microscopy](https://www.biorxiv.org/content/10.1101/199778v4)  
-- [Spherical Spindle Shape Promotes Perpendicular Cortical Orientation by Preventing Isometric Cortical Pulling on both Spindle Poles during C. elegans Female Meiosis](https://www.biorxiv.org/content/10.1101/596510v1)  
 - [Centrosome-nuclear envelope tethering and microtubule motor-based pulling forces collaborate in centrosome positioning during mitotic entry](https://www.biorxiv.org/content/10.1101/442368v1)  
 
 2018
