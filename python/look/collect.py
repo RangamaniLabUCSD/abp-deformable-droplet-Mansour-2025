@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # collect.py renames files from subdirectories
 #
@@ -62,7 +62,7 @@ def cannonical_pattern(arg):
     c = arg.count('%')
     for n in range(c,1,-1):
         if arg.find('%'*n) > 0:
-            return arg.replace('%'*n, '%0'+str(n)+'i', 1);
+            return arg.replace('%'*n, '%0'+str(n)+'i', 1)
     return arg
 
 
@@ -94,7 +94,7 @@ def main(args):
     # check if 'copy' specified before pattern
     if arg=='-c' or arg=='--copy' or arg=='copy=1':
         do_copy = True
-        args.pop(0);
+        args.pop(0)
     # get pattern for moving files:
     pattern = validate_pattern(args.pop(0))
     # parse arguments:
@@ -103,8 +103,8 @@ def main(args):
     for arg in args:
         if arg=='-c' or arg=='--copy' or arg=='copy=1':
             do_copy = True
-        elif args[0].isdigit():
-            idx = int(args[0])
+        elif arg.isdigit():
+            idx = int(arg)
         elif os.path.isfile(arg) or os.path.isdir(arg):
             paths.append(arg)
         else:

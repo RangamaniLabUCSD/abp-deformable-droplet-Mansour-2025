@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # get_data.py
 #
@@ -76,7 +76,7 @@ def get_column(file, jj):
         """
     res = ' '
     for line in file:
-        s = line.split();
+        s = line.split()
         if not s or s[0] == '%':
             continue
         try:

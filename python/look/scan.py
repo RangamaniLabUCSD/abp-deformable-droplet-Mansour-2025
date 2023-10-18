@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # scan.py executes a given command sequentially or in parallel, in specified directories
 #
@@ -44,7 +44,6 @@ def assemble(path, lines, verb):
     """
     res = ''
     if verb == 2:
-        sys.stderr.write('-  '*24+path+"\n")
         for s in lines:
             res += s
     elif verb == 1:
@@ -65,12 +64,14 @@ def execute(tool, path, verb):
     lines = []
     try:
         os.chdir(path)
+        if verb == 2:
+            sys.stderr.write('-  '*24+path+"\n")
         sub = subprocess.Popen(tool, shell=True, stdout=subprocess.PIPE)
         for s in sub.stdout:
             lines.append(s.decode())
         sub.stdout.close()
     except Exception as e:
-        err.write("Error: %s\n" % repr(e));
+        err.write("Error: %s\n" % repr(e))
     res = assemble(path, lines, verb)
     out.write(res)
     out.flush()
@@ -110,12 +111,11 @@ def main(args):
     njobs = 1
     paths = []
     for arg in args[1:]:
+        [key, equal, val] = arg.partition('=')
         if os.path.isdir(arg):
             paths.append(os.path.abspath(arg))
-        elif arg.startswith('nproc=') or arg.startswith('njobs='):
-            njobs = int(arg[6:])
-        elif arg.startswith('jobs='):
-            njobs = int(arg[5:])
+        elif key == 'nproc' or key == 'njobs' or key == 'jobs':
+            njobs = int(val)
         elif arg == '-':
             verbose = 0
         elif arg == '+':
@@ -146,6 +146,7 @@ def main(args):
             # wait for completion of all jobs:
             for j in jobs:
                 j.join()
+                j.close()
             return 0
         except ImportError:
             err.write("Warning: multiprocessing module unavailable\n")

@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # make_page.py creates a HTML page with links to files in given directories
 #
-# Copyright FJ Nedelec, 14.12.2007 -- 4.2015 & 7.3.2022
+# Copyright FJ Nedelec, 14.12.2007 -- 4.2015 & 7.3.2022, 15.3.2023
 
 """
 Synopsis:
@@ -23,11 +23,10 @@ Info:
 
 Copyright F.J. Nedelec, Cambridge University
 Created  14.12.2007
-Modified 3.2010, 5.2012, 11.2012, 7.2013, 11.2013, 4.2015, 7.3.2022
+Modified 3.2010, 5.2012, 11.2012, 7.2013, 11.2013, 4.2015, 7.3.2022, 11.3.2023
 """
 
 import sys, os, subprocess
-import struct, imghdr
 
 out  = 0
 indx = 1
@@ -35,8 +34,10 @@ iarg = ''
 tile = 0
 curs = 0
 excluded = []
+master = 'config.cym'
 output = 'page.html'
-
+back_color = '#111111'
+text_color = '#AAAAAA'
 
 def writeHeader():
     global out;
@@ -55,7 +56,7 @@ def writeHeader():
     #out.write('function stat(s)    { window.status=s; }\n')
     out.write('</script>\n')
     out.write('</head>\n')
-    out.write('<body bgcolor="#AAAAAA">\n')
+    out.write(f'<body bgcolor="{back_color}">\n')
     out.write('<h2>\n')
     out.write('<a href="index.html">index</a>\n')
     out.write('</h2>\n')
@@ -65,41 +66,6 @@ def writeFooter():
     global out;
     out.write('</body>\n')
     out.write('</html>\n')
-
-
-def getImageSize(filename):
-    '''Determine the image type and return its size. from draco'''
-    with open(filename, 'rb') as file:
-        head = file.read(24)
-        if len(head) != 24:
-            return
-        if imghdr.what(filename) == 'png':
-            check = struct.unpack('>i', head[4:8])[0]
-            if check != 0x0d0a1a0a:
-                return
-            W, H = struct.unpack('>ii', head[16:24])
-        elif imghdr.what(filename) == 'gif':
-            W, H = struct.unpack('<HH', head[6:10])
-        elif imghdr.what(filename) == 'jpeg':
-            try:
-                file.seek(0) # Read 0xff next
-                size = 2
-                ftype = 0
-                while not 0xc0 <= ftype <= 0xcf:
-                    file.seek(size, 1)
-                    byte = file.read(1)
-                    while ord(byte) == 0xff:
-                        byte = file.read(1)
-                    ftype = ord(byte)
-                    size = struct.unpack('>H', file.read(2))[0] - 2
-                # We are at a SOFn block
-                file.seek(1, 1)  # Skip `precision' byte.
-                H, W = struct.unpack('>HH', file.read(4))
-            except Exception: #IGNORE:W0703
-                return
-        else:
-            return
-        return W, H
 
 
 def getMovieSize(file):
@@ -128,9 +94,9 @@ def writeImageLinks(files):
     global out, iarg
     for f in sorted(files):
         shot = os.path.basename(f)
-        #out.write('<br>%s: ' % shot);
-        out.write('<a href="javascript:zoom(\'%s\');">\n' % f);
-        out.write('  <img %s src="%s" alt="%s">\n' % (iarg, f, shot));
+        #out.write('<br>%s: ' % shot)
+        out.write('<a href="javascript:zoom(\'%s\');">\n' % f)
+        out.write('  <img %s src="%s" alt="%s">\n' % (iarg, f, shot))
         out.write('</a>\n')
     if files:
         out.write('\n')
@@ -141,12 +107,30 @@ def writeMovieLinks(files):
     for f in sorted(files):
         W, H = getMovieSize(f)
         shot = os.path.basename(f)
-        out.write('<video controls="controls" width="%s" height="%s" loop="true" alt="%s">\n' % (W, H, shot));
-        out.write('  <source src="%s" type="video/mp4">\n' % f);
-        out.write('  This is a HTML5 VIDEO element\n');
-        out.write('</video>\n');
+        out.write('<video controls="controls" width="%s" height="%s" loop="true" alt="%s">\n' % (W, H, shot))
+        out.write('  <source src="%s" type="video/mp4">\n' % f)
+        out.write('</video>\n')
     if files:
         out.write('\n')
+
+
+def writeDifferences(left, right):
+    """
+    Extract differences in 'right' compare to left, and print them to 'out'
+    """
+    if not os.path.isfile(left) or not os.path.isfile(right):
+        return
+    sub = subprocess.Popen(['diff', left, right], stdout=subprocess.PIPE)
+    out.write(f'<pre style="color:{text_color}">\n')
+    for data in sub.stdout:
+        try:
+            line = data.decode('utf-8')
+        except:
+            line = data
+        if line[0] == '>' and not line[1:].isspace():
+            out.write(line)
+    sub.stdout.close()
+    out.write('</pre>\n')
 
 
 def process(dirpath, subdir, files, images, movies):
@@ -156,10 +140,13 @@ def process(dirpath, subdir, files, images, movies):
     global out, indx, tile, curs
     if tile > 0:
         out.write('<td>\n')
-    out.write('<h3 style="padding:3px;margin:3px"> '+dirpath.lstrip('./'))
+    out.write('<h3 style="color:Yellow;padding:3px;margin:3px">\n')
+    out.write(dirpath.lstrip('./'))
     for f in files:
-        out.write('\n  &mdash; <a href="%s/%s">%s</a>' % (dirpath, f, f));
+        out.write(' &mdash; <a href="%s/%s">%s</a>' % (dirpath, f, f))
     out.write('\n</h3>\n')
+    if master in files:
+        writeDifferences(master, os.path.join(dirpath, master))
     writeImageLinks(images)
     writeMovieLinks(movies)
     if curs:
@@ -173,7 +160,7 @@ def process(dirpath, subdir, files, images, movies):
 
 
 def process_dir(dirpath):
-    """select relevant files and call process()"""
+    """select relevant files in given sub-directory and call process()"""
     subdir = []
     files = []
     images = []
@@ -184,13 +171,14 @@ def process_dir(dirpath):
             subdir.append(f)
         else:
             [name, ext] = os.path.splitext(f)
+            ext = ext.lower()
             if name in excluded:
                 pass
             elif ext in ['.png', '.jpg', '.gif', '.tif', '.svg']:
                 images.append(path)
             elif ext in ['.mp4', '.mov']:
                 movies.append(path)
-            elif f in ['config.cym', 'movie.mp4']:
+            elif f in [master, 'movie.mp4']:
                 files.append(f)
     process(dirpath, subdir, files, images, movies)
 
@@ -199,7 +187,7 @@ def process_dir(dirpath):
 
 def main(args):
     """generates HTML page"""
-    global output, out, iarg, tile, curs
+    global output, out, iarg, tile, curs, master
     paths = []
     
     for arg in args:
@@ -215,6 +203,8 @@ def main(args):
                 curs = int(val)
             elif key=='exclude':
                 excluded.append(val)
+            elif key=='master':
+                master = val
             else:
                 sys.stderr.write("ignored '%s' on command line\n" % arg)
         else:
@@ -235,18 +225,14 @@ def main(args):
         sys.stderr.write("Error creating file `%s': %s\n" % (output, repr(e)))
         out = sys.stdout
     writeHeader()
-    
     if tile > 0:
         out.write('<table border="0" align="center" cellpadding="1">\n')
         out.write('<tr>\n')
-
     for p in paths:
         process_dir(p)
-    
     if tile > 0:
         out.write('</tr>\n')
         out.write('</table>\n')
-    
     writeFooter()
     if out != sys.stdout:
         out.close()
