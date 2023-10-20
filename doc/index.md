@@ -16,7 +16,7 @@
 *  [The different executables](main/executables.md)
 *  [Graphical rendering](sim/graphics.md)
 *  [Making movies](main/movies.md)
-*  [Prior work](examples/index.md)
+*  [Prior work](publications/index.md)
 *  [Syntax highlighting for config file](https://github.com/manulera/cytosimGrammar)
 *  [File types](main/file_types.md)
 

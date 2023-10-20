@@ -2,7 +2,7 @@
 
 Cytosim is an [open-source](LICENSE.txt) cytoskeleton simulation suite designed to handle large systems of flexible filaments with associated proteins such as molecular motors. It is a versatile base that has been used to study actin and microtubule systems in 1D, 2D and 3D. It is built around a cross-platform C++ core engine running on UNIX, Mac OSX, GNU/Linux and within Cygwin on Windows. The code is modular and extensible, making Cytosim a convenient base that can be customized to meet particular tasks. Some of the most common tasks encountered during a simulation project are implemented in Python.
 
-Cytosim has been used for about 100 research articles from the [Nedelec](doc/examples/index.md) and [other groups](doc/examples/biblio.md).
+Cytosim has been used for about 100 research articles from the [Nedelec](doc/publications/index.md) and [other groups](doc/publications/biblio.md).
 
 ![Cytosim](doc/data/cytosim.png)
 
