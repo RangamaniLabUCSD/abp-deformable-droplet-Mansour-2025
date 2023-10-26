@@ -18,6 +18,21 @@ The configuration is directly taken from:
 We will start with [this configuration file](data/capture.cym).
 Let's see what this files contains.
 
+# Code
+
+Important: this simulation used two custom features, that are disabled by default in the code:
+
+	NEW_LENGTH_DEPENDENT_CATASTROPHE
+
+	NEW_RADIAL_FLOW
+
+These compile switches should be set to 1, and the code needs to be recompiled: `make clean; make`
+
+	#define NEW_LENGTH_DEPENDENT_CATASTROPHE 1
+
+	#define NEW_RADIAL_FLOW 1
+
+
 # Setup
 
 	
@@ -49,7 +64,7 @@ Let's see what this files contains.
 	    catastrophe_outside = 1;
 	    catastrophe_rate = 0.15;
 	    confine = inside, 100;
-	    delete_stub = 0;
+	    persistent = 1;
 	    growing_force = 1.67;
 	    growing_speed = 0.5;
 	    min_length = 0.25;
@@ -63,7 +78,7 @@ Let's see what this files contains.
 	set hand nucleator
 	{
 	    activity = nucleate;
-	    nucleate = 1, microtubule, { length = 3; plus_end=grow; };
+	    nucleate = 1, microtubule, ( length = 3; plus_end = grow; );
 	    unbinding = 0, 3;
 	    display = ( color = green; size = 5; );
 	}
