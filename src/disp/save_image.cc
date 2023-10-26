@@ -8,6 +8,11 @@
 #  include "opengl.h"
 #endif
 
+#if defined(__APPLE__)    /* For OSX */
+#define USE_SPNG 1
+#else
+#define USE_SPNG 0
+#endif
 
 /// destination of error messages (set to zero to suppress output)
 static FILE * ERF = stderr;
@@ -16,7 +21,11 @@ static FILE * ERF = stderr;
 bool SaveImage::supported(const char format[])
 {
     if ( 0 == strcasecmp(format, "png") )
+#if USE_SPNG
         return true;
+#else
+    return false;
+#endif
     if ( 0 == strcasecmp(format, "ppm") )
         return true;
     if ( 0 == strcasecmp(format, "tga") )
@@ -574,7 +583,7 @@ int SaveImage::savePNG(FILE* file, const uint8_t pixels[],
     return res;
 }
 
-#elif 0
+#elif USE_SPNG
 
 //------------------------------------------------------------------------------
 #pragma mark - PNG export using libspng (https://libspng.org)
