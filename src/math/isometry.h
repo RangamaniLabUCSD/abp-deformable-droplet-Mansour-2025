@@ -66,6 +66,11 @@ public:
         rot = r;
     }
 
+    bool valid()
+    {
+        return mov.valid();
+    }
+
     void reset()
     {
         mov.reset();
@@ -109,7 +114,13 @@ public:
 /// output operator
 inline std::ostream& operator << (std::ostream& os, Isometry const& iso)
 {
-    os << "Isometry { " << iso.mov << " | " << iso.rot << " }";
+#if ( DIM > 2 )
+    real angle = iso.rot.rotationAngle();
+    Vector axis = iso.rot.rotationAxis();
+    os << "Iso { " << iso.mov << " | " << angle << " axis " << axis << " }";
+#else
+    os << "Iso { " << iso.mov << " | " << iso.rot << " }";
+#endif
     return os;
 }
 

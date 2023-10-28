@@ -240,73 +240,56 @@ enum PlacementType { PLACE_NOT, PLACE_ANYWHERE, PLACE_INSIDE, PLACE_EDGE,
  inside the Space, and the density will thus be exactly what is specified from the
  `position` range (here 100/10*10 = 1 object per squared micrometer).
  */
-Isometry Interface::find_placement(Glossary& opt, int placement)
+bool Interface::find_placement(Isometry& iso, Glossary& opt, int placement)
 {
-    int n = 0, nb_trials = 1<<13;
     std::string str;
-    
-    opt.set(nb_trials, "nb_trials");
-
     Space const* spc = simul.spaces.master();
     if ( opt.set(str, "placement", 1) )
         spc = simul.findSpace(str);
-    
-    // define a condition:
-    bool has_condition = false;
-    std::string condition_str;
-    if ( opt.set(condition_str, "placement", 2) )
-        has_condition = true;
-    
-    Isometry iso;
 
-    while ( ++n < nb_trials )
+    // generate a new position:
+    iso = read_placement(opt);
+    
+    if ( !iso.valid() )
+        return 0;
+    
+    // check any conditions to the position:
+    bool has_condition = opt.set(str, "placement", 2);
+    if ( has_condition )
     {
-        // generate a new position:
-        iso = read_placement(opt);
-
-        // check all conditions:
-        bool condition = true;
-        if ( has_condition )
-        {
-            Evaluator evaluator{{'X', iso.mov.x()}, {'Y', iso.mov.y()}, {'Z', iso.mov.z()},
-                                {'R', iso.mov.norm()}, {'P', RNG.preal()}};
-            try {
-                char const* ptr = condition_str.c_str();
-                condition = evaluator.evaluate(ptr);
-            }
-            catch( Exception& e ) {
-                e.message(e.message()+" in `"+condition_str+"'");
-                throw;
-            }
+        Evaluator evaluator{{'X', iso.mov.x()}, {'Y', iso.mov.y()}, {'Z', iso.mov.z()},
+            {'R', iso.mov.norm()}, {'P', RNG.preal()}};
+        try {
+            if ( 0 == evaluator.evaluate(str.c_str()) )
+                return 0;
         }
-        
-        if ( condition )
-        {
-            if ( !spc || placement == PLACE_ANYWHERE )
-                return iso;
-            
-            if ( placement == PLACE_EDGE )
-            {
-                iso.mov = spc->project(iso.mov);
-                return iso;
-            }
-            
-            if ( spc->inside(iso.mov) )
-            {
-                if ( placement == PLACE_INSIDE || placement == PLACE_ALL_INSIDE )
-                    return iso;
-            }
-            else
-            {
-                if ( placement == PLACE_OUTSIDE )
-                    return iso;
-            }
+        catch( Exception& e ) {
+            e.message(e.message()+" in `"+str+"'");
+            throw;
         }
     }
     
-    //Cytosim::warn << "could not fulfill `position=" + opt.value("position", 0) + "'\n";
-    throw InvalidParameter("could not fulfill `position=" + opt.value("position", 0) + "'");
-    //iso.reset(); return iso;
+    if ( !spc || placement == PLACE_ANYWHERE )
+        return 1;
+    
+    if ( placement == PLACE_EDGE )
+    {
+        iso.mov = spc->project(iso.mov);
+        return 1;
+    }
+    
+    if ( spc->inside(iso.mov) )
+    {
+        if ( placement == PLACE_INSIDE || placement == PLACE_ALL_INSIDE )
+            return 1;
+    }
+    else
+    {
+        if ( placement == PLACE_OUTSIDE )
+            return 1;
+    }
+    
+    return 0;
 }
 
 
@@ -315,7 +298,10 @@ Isometry Interface::find_placement(Glossary& opt, int placement)
  */
 ObjectList Interface::execute_new(std::string const& name, Glossary& opt)
 {
-    ObjectList res;
+    ObjectList objs;
+    long max_trials = 1024;
+    opt.set(max_trials, "nb_trials");
+    long nb_trials = max_trials;
     ObjectSet * set = nullptr;
     {
         Property * pp = simul.properties.find(name);
@@ -328,10 +314,11 @@ ObjectList Interface::execute_new(std::string const& name, Glossary& opt)
     if ( !set )
         throw InvalidSyntax("could not determine the class of `"+name+"'");
     
-    do {
-        
+    //VLOG(">NEW `" << name << "'\n");
+    while ( --nb_trials >= 0 )
+    {
         // create the objects:
-        res = set->newObjects(name, opt);
+        objs = set->newObjects(name, opt);
         
 #if ( 0 )
         // check for zero value in list, which should not happen:
@@ -342,6 +329,10 @@ ObjectList Interface::execute_new(std::string const& name, Glossary& opt)
         }
 #endif
         
+        // early bailout for immobile objects:
+        if ( objs.size()==1 && !objs[0]->mobile() )
+            break;
+
         PlacementType placement = PLACE_INSIDE;
         
         opt.set(placement, "placement",{{"off",       PLACE_NOT},
@@ -354,51 +345,62 @@ ObjectList Interface::execute_new(std::string const& name, Glossary& opt)
                                        {"outside",    PLACE_OUTSIDE},
                                        {"surface",    PLACE_EDGE}});
         
-        if ( placement != PLACE_NOT )
+        if ( placement == PLACE_NOT )
+            break;
+        
+        // find possible position & rotation:
+        Isometry iso;
+        if ( find_placement(iso, opt, placement) )
         {
-            Isometry iso = find_placement(opt, placement);
-            ObjectSet::moveObjects(res, iso);
+            //std::clog << "obj at " << iso << "\n";
+            // place object at this position:
+            ObjectSet::moveObjects(objs, iso);
             // special case for which we check all vertices:
             if ( placement == PLACE_ALL_INSIDE )
             {
-                for ( Object * i : res )
+                bool okay = true;
+                for ( Object * i : objs )
                 {
                     Mecable * mec = Simul::toMecable(i);
                     if ( mec && ! mec->allInside(simul.spaces.master()) )
                     {
-                        res.destroy();
-                        continue;
+                        okay = false;
+                        break;
                     }
+                }
+                if ( ! okay )
+                {
+                    objs.destroy();
+                    continue;
                 }
             }
         }
-        
-    } while ( res.empty() );
+    }
     
     // optionally mark the objects:
     ObjectMark mk = 0;
     if ( opt.set(mk, "mark") )
     {
-        for ( Object * i : res )
+        for ( Object * i : objs )
             i->mark(mk);
     }
     
     // syntax sugar, translation after placement
     Vector vec;
     if ( opt.set(vec, "translation") )
-        ObjectSet::translateObjects(res, vec);
+        ObjectSet::translateObjects(objs, vec);
 
     /* 
      Because the objects in ObjectList are not necessarily all of the same class,
      we call simul.add() rather than directly set->add()
      */
-    simul.add(res);
+    simul.add(objs);
     
     //hold();
 
-    VLOG("+NEW `" << name << "' made " << res.size() << " objects\n");
+    VLOG("+NEW `" << name << "' made " << objs.size() << " objects\n");
     
-    return res;
+    return objs;
 }
 
 

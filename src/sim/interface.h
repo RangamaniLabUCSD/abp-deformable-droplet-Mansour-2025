@@ -58,9 +58,9 @@ public:
     /// read the specification of position and orientation of an object
     Isometry   read_placement(Glossary&);
     
-    /// return position and orientation of an object, with verification of 'placement'
-    Isometry   find_placement(Glossary&, int);
-    
+    /// set position and orientation of an object, according to 'placement'
+    bool find_placement(Isometry&, Glossary&, int placement);
+
     /// create 1 object of type `name`, following options in Glossary
     ObjectList execute_new(std::string const& name, Glossary&);
     
