@@ -21,7 +21,7 @@ void SpaceTorus::resize(Glossary& opt)
     
     if ( opt.set(wid, "width") )
         wid *= 0.5;
-    opt.set(bRadius, "radius");
+    opt.set(rad, "radius");
 
     if ( rad <= 0 )
         throw InvalidParameter("torus:radius must be > 0");
