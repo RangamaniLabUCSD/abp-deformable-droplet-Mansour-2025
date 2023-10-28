@@ -9,6 +9,7 @@ set simul system
 {
     time_step = 0.001
     viscosity = 10
+    dim = 2
 }
 
 set space cell

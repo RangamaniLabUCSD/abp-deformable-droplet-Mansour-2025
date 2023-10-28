@@ -1,13 +1,14 @@
-% A contractile network in half_periodic box
+% A 2D contractile network in half_periodic box
 % FJN, 09.01.2020
 
 set simul system
 {
+    dim = 2
     time_step = 0.001
     viscosity = 0.5
 }
 
-set system display { style=2; point_size=5; }
+set system display { point_size=5; }
 
 set space cell
 {
@@ -75,7 +76,7 @@ new 200 complex
 new event
 {
     delay = 1;
-    code = "report fiber:tension *"
+    code = "report fiber:tension tension.txt"
 }
 
 run 100000 system

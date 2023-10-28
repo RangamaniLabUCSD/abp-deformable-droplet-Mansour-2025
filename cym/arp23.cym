@@ -11,6 +11,7 @@ set simul system
 {
     time_step = 0.0001
     viscosity = 1
+    dim = 2
 }
 
 set space cell
