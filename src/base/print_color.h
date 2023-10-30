@@ -13,7 +13,7 @@
 
 
 /// True if terminal supports colors
-bool has_colors();
+bool print_has_colors();
 
 /// print text in red
 void print_red(std::ostream&, std::string const&);
@@ -33,4 +33,5 @@ void print_magenta(std::ostream&, std::string const&);
 /// print text in cyan
 void print_cyan(std::ostream&, std::string const&);
 
-
+/// print text in bold
+void print_bold(std::ostream&, std::string const&);
