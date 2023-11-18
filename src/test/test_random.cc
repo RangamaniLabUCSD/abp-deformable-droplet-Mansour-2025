@@ -204,9 +204,8 @@ void test_float()
 
 //==========================================================================
 
-void test_uniform()
+void test_uniform(size_t cnt)
 {
-    size_t cnt = 1<<28;
     real avg = 0;
     real var = 0;
     for ( size_t i = 0; i < cnt; ++i )
@@ -225,15 +224,14 @@ void test_uniform()
 }
 
 
-void test_gauss()
+void test_gauss(size_t nit)
 {
-    printf("Gauss\n");
     size_t cnt = 0;
     real avg = 0;
     real var = 0;
     const size_t n_max = 1<<6;
     real vec[n_max] = { 0 };
-    for ( size_t i = 0; i < 10000000; ++i )
+    for ( size_t i = 0; i < nit; ++i )
     {
         size_t n = RNG.pint32(n_max);
         RNG.gauss_set(vec, n);
@@ -246,7 +244,7 @@ void test_gauss()
     }
     avg /= (real)cnt;
     var = var/(real)cnt - avg * avg;
-    printf("GAUSS      avg = %.12e   var = %.12e\n", avg, var);
+    printf("GAUSS        avg = %.12e   var = %.12e\n", avg, var);
 
 }
 
@@ -262,24 +260,24 @@ void test_prob()
 }
 
 
-void test_exponential()
+void test_exponential(size_t cnt)
 {
-    size_t cnt = 1 << 29;
+    real off = 1.0;
     real avg = 0;
     real var = 0;
     for ( size_t i = 0; i < cnt; ++i )
     {
-        real x = RNG.exponential();
-        real y = RNG.exponential();
-        real z = RNG.exponential();
-        real t = RNG.exponential();
+        real x = RNG.exponential() - off;
+        real y = RNG.exponential() - off;
+        real z = RNG.exponential() - off;
+        real t = RNG.exponential() - off;
         avg += x + y + z + t;
         var += x*x + y*y + z*z + t*t;
     }
     cnt *= 4;
     avg /= (real)cnt;
     var = var/(real)cnt - avg * avg;
-    printf("EXPONENTIAL  avg = %.12e   var = %.12e\n", avg, var);
+    printf("EXPONENTIAL  avg = %.12e   var = %.12e\n", avg+off, var);
 }
 
 
@@ -578,9 +576,9 @@ int main(int argc, char* argv[])
             break;
             
         case 1:
-            test_exponential();
-            test_uniform();
-            test_gauss();
+            test_exponential(1<<20);
+            test_uniform(1<<20);
+            test_gauss(1<<20);
             break;
     
         case 2:
