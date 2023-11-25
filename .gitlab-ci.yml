@@ -1,9 +1,5 @@
 # This file originally by FJN 3.12.2021
 
-stages:
-  - build
-  - test
-
 image: gcc
 
 make_sim:
