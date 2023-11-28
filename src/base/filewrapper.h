@@ -13,6 +13,7 @@
 
 
 #include "assert_macro.h"
+#include <cstdint>
 #include <cstdio>
 #include <sys/types.h>
 #include <string>
