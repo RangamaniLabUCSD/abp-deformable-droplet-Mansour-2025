@@ -4,11 +4,6 @@ image: gcc
 
 make_sim:
     stage: build
-    rules:
-      - if: $CI_COMMIT_BRANCH =~ $CI_DEFAULT_BRANCH
-        when: never
-      - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-        when: always
     before_script:
       - apt update && apt -y install cmake autoconf libblas-dev liblapack-dev
     script:
@@ -28,11 +23,6 @@ make_sim:
 
 make_play:
     stage: build
-    rules:
-      - if: $CI_COMMIT_BRANCH =~ $CI_DEFAULT_BRANCH
-        when: never
-      - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-        when: manual
     before_script:
       - apt update && apt -y install cmake autoconf libblas-dev liblapack-dev mesa-common-dev libglew-dev freeglut3-dev
     script:
