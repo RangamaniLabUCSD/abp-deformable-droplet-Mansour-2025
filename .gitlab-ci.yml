@@ -27,7 +27,7 @@ make_play:
       - apt update && apt -y install cmake autoconf libblas-dev liblapack-dev mesa-common-dev libglew-dev freeglut3-dev
     script:
       - mkdir -p build; cd build
-      - cmake -DMAKE_SIM=OFF -DMAKE_TOOLS=OFF ..
+      - cmake -DMAKE_TOOLS=OFF ..
       - make play
     artifacts:
       paths:
