@@ -10,8 +10,8 @@
 
 2023
 
-- [Kinetic trapping organizes actin filaments within liquid-like protein droplets](https://doi.org/10.1101/2023.05.26.542517)
-- [Liquid-like condensates mediate competition between actin branching and bundling](https://doi.org/10.1101/2023.06.23.546267)
+- [Kinetic trapping organizes actin filaments within liquid-like protein droplets](https://www.biorxiv.org/content/10.1101/2023.05.26.542517v1)
+- [Liquid-like condensates mediate competition between actin branching and bundling](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10327076/)
 - [Nonaffine Mechanics of Entangled Networks Inspired by Intermediate Filaments](https://doi.org/10.1103/PhysRevLett.131.058101)
 - [Microtubule competition and cell growth recenter the nucleus after anaphase in fission yeast](https://doi.org/10.1091/mbc.E23-01-0034)
 - [Reduction of cortical pulling at mitotic entry facilitates aster centration](https://doi.org/10.1101/2023.03.21.533625)
@@ -66,7 +66,6 @@
 - [Role of External Forcing in Directional Instability of Microtubule Transport](http://dr.iiserpune.ac.in:8080/xmlui/handle/123456789/987)
 - [Entropy production rate is maximized in non-contractile actomyosin](http://dx.doi.org/10.1038/s41467-018-07413-5)
 - [Evolutionary mechanisms of asymmetric spindle positioning in nematode embyos](http://dr.iiserpune.ac.in:8080/xmlui/handle/123456789/1007)
-- [Role of External Forcing in Directional Instability of Microtubule Transport]()
 
 2017
 
