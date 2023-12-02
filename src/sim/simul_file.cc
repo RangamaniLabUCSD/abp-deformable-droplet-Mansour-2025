@@ -60,24 +60,25 @@
 void Simul::writeObjects(Outputter& out) const
 {
     // write a line identifying a new frame:
-    fprintf(out, "\n\n#Cytosim  %i  %s", getpid(), TicToc::date());
+    out.write("\n#Cytosim  "+std::to_string(getpid())+"  "+TicToc::date());
     
     // record file format:
-    fprintf(out, "\n#format %i dim %i", currentFormatID, DIM);
+    out.write("\n#format "+std::to_string(currentFormatID)+" dim "+std::to_string(DIM));
     
     // identify the file as binary, with its endianess:
     if ( out.binary() )
     {
-        fprintf(out, "\n#binary ");
+        out.write("\n#binary ");
         out.writeEndianess();
     }
     
+    out.write("\n#time "+std::to_string(prop->time)+" sec");
+
     /*
      An object should be written after any other objects that it refers to.
      For example, Aster is written after Fiber, Couple after Fiber...
      This makes it easier to reconstruct the state during input.
      */
-    fprintf(out, "\n#time %.6f sec", prop->time);
 
     spaces.write(out);
     fields.write(out);
@@ -90,9 +91,9 @@ void Simul::writeObjects(Outputter& out) const
     organizers.write(out);
     //events.write(out);
     
-    out.put_line("\n#section end");
-    out.put_line("\n#end cytosim");
-    fprintf(out, " %s\n\n", TicToc::date());
+    out.write("\n#section end");
+    out.write("\n#end cytosim");
+    out.write("\n#section end\n#end cytosim\n");
 }
 
 
@@ -232,7 +233,7 @@ Object * Simul::readReference(Inputter& in, ObjectTag& tag)
                 throw InvalidIO("readReference (compatibility) failed");
             }
             else
-            in.unget(h);
+            in.unget_char(h);
         }
 #endif
     }
@@ -506,7 +507,7 @@ int Simul::readObjects(Inputter& in, ObjectSet* subset)
             {
                 int d = 0, f = 0;
                 iss >> f >> tok >> d;
-                in.formatID(f);
+                in.setFormatID(f);
                 in.vectorSize(d);
                 if ( d != DIM )
                     Cytosim::warn << "mismatch between file ("<<d<<"D) and executable ("<<DIM<<"D)\n";
@@ -534,7 +535,7 @@ int Simul::readObjects(Inputter& in, ObjectSet* subset)
                         iss >> tok >> i;
                         if ( tok == "format" )
                         {
-                            in.formatID(i);
+                            in.setFormatID(i);
                             //if ( i != currentFormatID )
                             //    std::clog << "Cytosim is reading data format " << i << "\n";
                         }

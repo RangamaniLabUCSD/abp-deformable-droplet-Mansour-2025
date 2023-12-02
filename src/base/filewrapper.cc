@@ -1,4 +1,4 @@
-// Cytosim was created by Francois Nedelec. Copyright 2007-2017 EMBL.
+// Cytosim was created by Francois Nedelec. Copyright Cambridge University 2020
 
 #include "filewrapper.h"
 #include "exceptions.h"
@@ -37,7 +37,7 @@ FileWrapper::~FileWrapper()
 //------------------------------------------------------------------------------
 #pragma mark -
 
-void FileWrapper::operator =(FILE * f)
+void FileWrapper::operator = (FILE * f)
 {
     close();
     mFile = f;
@@ -64,6 +64,8 @@ int FileWrapper::open(const char* name, const char* mode)
     {
         if ( mode[0] == 'w'  ||  mode[0] == 'a' )
             throw InvalidIO("output file could not be opened");
+        if ( mode[0] == 'r' )
+            throw InvalidIO("input file could not be opened");
         return 1;
     }
     
@@ -98,60 +100,29 @@ void FileWrapper::close()
 
 
 /**
- This will write a null-terminated C-string to output stream.
- If it is non-zero, character 'end' is appended.
+ This will write a newline-terminated C-string to output stream.
  */
-void FileWrapper::put_line(const char * str, bool end)
+void FileWrapper::put_line(const std::string& str)
 {
-    size_t s = strlen(str);
-    fwrite(str, 1, s, mFile);
-    if ( end )
-        putc('\n', mFile);
-    //printf("* putline |%s|\n", str);
+    size_t s = str.size();
+    fwrite(str.c_str(), 1, s+1, mFile);
+    putc('\n', mFile);
 }
 
 
-void FileWrapper::put_line(const std::string& str, bool end)
-{
-    put_line(str.c_str(), end);
-}
-
-
-std::string FileWrapper::get_line(const char end)
+std::string FileWrapper::get_line()
 {
     std::string res;
-
-    if ( ferror(mFile) )
-        return res;
-
-    const size_t CHK = 32;
-    char buf[CHK];
-    
-    fpos_t pos;
-    char * m;
-    
-    while ( !feof(mFile) )
+    char * line = nullptr;
+    size_t line_len = 0;
+    ssize_t read = getline(&line, &line_len, mFile);
+    if ( read > 0 )
     {
-        fgetpos(mFile, &pos);
-        size_t s = fread(buf, 1, CHK, mFile);
-        
-        // search for separator:
-        m = (char*)memchr(buf, end, s);
-        
-        if ( m )
-        {
-            s = (size_t)( m - buf );
-            res.append(buf, s);
-            //reposition at end of line:
-            fsetpos(mFile, &pos);
-            if ( s+1 != fread(buf, 1, s+1, mFile) )
-                throw InvalidIO("unexpected error");
-            //fprintf(stderr,"-|%s|-\n", line.c_str());
-            break;
-        }
-        res.append(buf, s);
+        if ( read > 1 && line[read-1] == '\n' )
+            line[read-1] = 0;
+        res.assign(line);
     }
-    
+    free(line);
     return res;
 }
 
@@ -161,11 +132,11 @@ void FileWrapper::put_characters(std::string const& str, size_t cnt)
     // write characters from 'str':
     size_t s = std::min(cnt, str.size());
     cnt -= fwrite(str.c_str(), 1, s, mFile);
-    // fill the rest with '0'
-    const size_t CHK = 32;
-    char buf[CHK] = { 0 };
+    // write a bunch of spaces to reach 'cnt' characters
+    char buf[] = { ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' };
+    //std::clog << "put_characters |" << buf << "| ";
     while ( cnt > 0 )
-        cnt -= fwrite(buf, 1, std::min(CHK, cnt), mFile);
+        cnt -= fwrite(buf, 1, std::min(sizeof(buf), cnt), mFile);
 }
 
 
@@ -181,9 +152,14 @@ std::string FileWrapper::get_characters(size_t cnt)
         res.append(buf, s);
         cnt -= s;
     }
+    //std::clog << "get_characters |" << res << "| ";
 
-    // trim trailing zeros:
-    std::string::size_type e = res.find((char)0);
+    std::string::size_type e = res.size();
+    // trim trailing zeros/spaces:
+    while ( e > 0 && ( 0==res.at(e-1) || isspace(res.at(e-1)) ))
+        --e;
+    
+    //std::clog << "trim |" << res.substr(0, e) << "|\n";
     return res.substr(0, e);
 }
 
@@ -205,13 +181,13 @@ std::string FileWrapper::get_word()
  This will search for the string and position the stream
  at the first character of the match.
  If the `str` is not found, the stream will be positionned
- at the end of the file, with a eof() state.
+ at the end of the file, triggering a eof() signal.
  
  The search may fail if `str` contains repeated sequences
  */
 void FileWrapper::skip_until(const char * str)
 {
-    const size_t CHK = 64;
+    const size_t CHK = 1024;
     char buf[CHK+2];
 
     fpos_t pos, match;
@@ -232,7 +208,7 @@ void FileWrapper::skip_until(const char * str)
             b = (char*)memchr(buf, ccc, nbuf);
             if ( !b )
                 continue;
-            match  = pos;
+            match = pos;
             off = (size_t)(b - buf);
             ++s;
             ++b;
@@ -262,7 +238,7 @@ void FileWrapper::skip_until(const char * str)
                 b = (char*)memchr(b, ccc, nbuf-(size_t)(b - buf));
                 if ( !b )
                     break;
-                match  = pos;
+                match = pos;
                 off = (size_t)(b - buf);
                 ++s;
             }

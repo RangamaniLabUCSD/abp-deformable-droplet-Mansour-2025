@@ -63,7 +63,7 @@ void SolidSet::write(Outputter& out) const
 {
     if ( size() > 0 )
     {
-        out.put_line("\n#section "+title(), out.binary());
+        out.write("\n#section "+title());
         writeNodes(out, nodes);
     }
 }

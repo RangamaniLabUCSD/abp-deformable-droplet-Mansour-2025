@@ -117,13 +117,13 @@ void Object::writeReference(Outputter& out, ObjectTag g, ObjectID id)
     {
         // long format (5 bytes)
         // set the highest bit of the byte, which is not used by ASCII codes
-        out.writeChar(g, 128);
+        out.writeChar(g|128);
         out.writeUInt32(id, 0);
     }
     else
     {
         // short format (3 bytes)
-        out.put_char(g);
+        out.writeChar(g);
         out.writeUInt16(id, 0);
     }
 }
@@ -169,15 +169,15 @@ void Object::writeHeader(Outputter& out, ObjectTag g) const
     if ( identity() > 65535 || property()->number() > 255 || mark() )
     {
         // set the highest bit of the byte, which is not used by ASCII codes
-        out.writeChar(g, 128);
+        out.writeChar(g|128);
         out.writeUInt16(property()->number(), 0);
         out.writeUInt32(identity(), ':');
         out.writeUInt32(mark(), ':');
     }
     else
     {
-        out.put_char(g);
-        out.writeUInt8(property()->number(), 0);
+        out.writeChar(g);
+        out.writeUInt8(property()->number());
         out.writeUInt16(identity(), ':');
     }
 }
@@ -224,7 +224,7 @@ void Object::readHeader(Inputter& in, bool fat, unsigned& ix, ObjectID& id, Obje
             throw InvalidIO("invalid Object header");
         }
         else
-            in.unget(c);
+            in.unget_char(c);
     }
 #ifdef BACKWARD_COMPATIBILITY
     if ( in.formatID() < 45 )

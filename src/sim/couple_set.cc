@@ -483,25 +483,25 @@ void CoupleSet::thaw()
 
 void CoupleSet::writeAA(Outputter& out) const
 {
-    out.put_line("\n#section couple AA", out.binary());
+    out.write("\n#section couple AA");
     writeNodes(out, aaList);
 }
 
 void CoupleSet::writeAF(Outputter& out) const
 {
-    out.put_line("\n#section couple AF", out.binary());
+    out.write("\n#section couple AF");
     writeNodes(out, afList);
 }
 
 void CoupleSet::writeFA(Outputter& out) const
 {
-    out.put_line("\n#section couple FA", out.binary());
+    out.write("\n#section couple FA");
     writeNodes(out, faList);
 }
 
 void CoupleSet::writeFF(Outputter& out) const
 {
-    out.put_line("\n#section couple FF", out.binary());
+    out.write("\n#section couple FF");
     writeNodes(out, ffList);
 }
 

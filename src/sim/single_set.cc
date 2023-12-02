@@ -288,12 +288,12 @@ void SingleSet::write(Outputter& out) const
 {
     if ( sizeA() > 0 )
     {
-        out.put_line("\n#section single A", out.binary());
+        out.write("\n#section single A");
         writeNodes(out, aList);
     }
     if ( sizeF() > 0 )
     {
-        out.put_line("\n#section single F", out.binary());
+        out.write("\n#section single F");
         writeNodes(out, fList);
     }
 }
