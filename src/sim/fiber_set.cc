@@ -11,6 +11,7 @@
 #include "dynamic_fiber_prop.h"
 #include "classic_fiber_prop.h"
 #include "treadmilling_fiber_prop.h"
+#include "capping_fiber_prop.h"
 #include "clapack.h"
 #include "simul.h"
 #include "sim.h"
@@ -55,6 +56,8 @@ Property* FiberSet::newProperty(const std::string& cat, const std::string& nom, 
                 return new DynamicFiberProp(nom);
             if ( a == "treadmill" )
                 return new TreadmillingFiberProp(nom);
+            if ( a == "capping" )
+                return new CappingFiberProp(nom);
             if ( a == "none" )
                 return new FiberProp(nom);
 
