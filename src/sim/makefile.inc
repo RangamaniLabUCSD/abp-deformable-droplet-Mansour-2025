@@ -42,7 +42,8 @@ OBJ_FIBERS := chain.o fiber.o mecafil.o fiber_prop.o fiber_set.o\
               dynamic_fiber.o dynamic_fiber_prop.o\
               classic_fiber.o classic_fiber_prop.o\
               treadmilling_fiber.o treadmilling_fiber_prop.o\
-              growing_fiber.o growing_fiber_prop.o
+              growing_fiber.o growing_fiber_prop.o\
+              capping_fiber.o capping_fiber_prop.o
 
 OBJ_ORGANIZERS := organizer.o organizer_set.o \
                   aster.o aster_prop.o nucleus.o nucleus_prop.o\
