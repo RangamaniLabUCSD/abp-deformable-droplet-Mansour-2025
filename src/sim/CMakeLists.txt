@@ -68,6 +68,7 @@ set(SOURCES_FIBERS
     classic_fiber.cc classic_fiber_prop.cc
     treadmilling_fiber.cc treadmilling_fiber_prop.cc
     growing_fiber.cc growing_fiber_prop.cc
+    capping_fiber.cc capping_fiber_prop.cc
 )
 list(TRANSFORM SOURCES_FIBERS PREPEND "fibers/")
 
