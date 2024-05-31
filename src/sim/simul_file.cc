@@ -92,8 +92,8 @@ void Simul::writeObjects(Outputter& out) const
     //events.write(out);
     
     out.write("\n#section end");
-    out.write("\n#end cytosim");
-    out.write("\n#section end\n#end cytosim\n");
+    out.write("\n#end cytosim\n");
+    //out.write("\n#section end\n#end cytosim\n");
 }
 
 
