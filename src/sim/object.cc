@@ -124,7 +124,7 @@ void Object::writeReference(Outputter& out, ObjectTag g, ObjectID id)
     {
         // short format (3 bytes)
         out.writeChar(g);
-        out.writeUInt16(id, 0);
+        out.writeUInt16(id, ' ');
     }
 }
 
