@@ -25,6 +25,8 @@ Single::Single(SingleProp const* p, Vector const& w)
 
 Single::~Single()
 {
+    // std::cout<<"Deleting Hand "<<sHand<<std::endl;
+    //specialization for dimerizer wrist
     if ( sHand  &&  sHand->attached() )
         sHand->detach();
 
@@ -44,8 +46,9 @@ void Single::afterAttachment(Hand const*)
     assert_true( attached() );
     // link into correct SingleSet sublist:
     SingleSet * set = static_cast<SingleSet*>(objset());
-    if ( set )
+    if ( set ){
         set->relinkA(this);
+    }
 }
 
 
@@ -68,13 +71,20 @@ void Single::beforeDetachment(Hand const* h)
      that rounds of binding/unbinding should not get the Singles closer to
      the Filaments to which they bind.
      */
+    if(bool(h->fiber()))
     sPos = h->posHand() + h->dirFiber().randOrthoB(h->prop->binding_range);
+    else
+    // In case of dimerizer wrist, add random position to the position of foot.
+    sPos = posFoot() + Vector3::randB(h->prop->binding_range);
+
 #endif
 
     // link into correct SingleSet sublist:
     SingleSet * set = static_cast<SingleSet*>(objset());
     if ( set )
         set->relinkD(this);
+    // std::cout<<"Removing single of hand from attached list "<<sHand<<std::endl;
+    // std::cout<<"----------------"<<std::endl;
 }
 
 
@@ -100,7 +110,7 @@ void Single::randomizePosition()
 }
 
 
-void Single::stepF(Simul& sim)
+bool Single::stepF(Simul& sim)
 {
     assert_false( sHand->attached() );
 
@@ -125,7 +135,7 @@ void Single::stepF(Simul& sim)
         sPos = prop->confine_space_ptr->project(sPos);
     }
     
-    sHand->stepUnattached(sim, sPos);
+    return sHand->stepUnattached(sim, sPos);
 }
 
 
@@ -138,8 +148,6 @@ void Single::stepA()
     // translation:
     sPos += prop->speed_dt;
 #endif
-    
-    sHand->stepUnloaded();
 }
 
 /**

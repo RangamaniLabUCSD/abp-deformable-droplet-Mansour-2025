@@ -253,7 +253,7 @@ Fiber* Fiber::severPoint(unsigned int pti)
         if ( ha->abscissa() > abs )
             ha->relocate(fib);
         else
-            ha->reinterpolate();
+            ha->update();
         ha = nx;
     }
     
@@ -275,12 +275,12 @@ The Fiber is cut at distance `abs` from its MINUS_END:
  pointer may be zero, if `abs` was not within the valid range of abscissa.
  If a new Fiber was created, it should be added to the FiberSet.
  */
-Fiber* Fiber::severM(real abs)
+Fiber* Fiber::severP(real abs)
 {
     if ( abs <= REAL_EPSILON || abs + REAL_EPSILON >= length() )
         return nullptr;
     
-    //std::clog << "severM " << reference() << " at " << abscissaM()+abs << "\n";
+    //std::clog << "severP " << reference() << " at " << abscissaM()+abs << "\n";
 
     // create a new Fiber of the same class:
     Fiber* fib = prop->newFiber();
@@ -315,7 +315,7 @@ Fiber* Fiber::severM(real abs)
         if ( ha->abscissa() >= abs )
             ha->relocate(fib);
         else
-            ha->reinterpolate();
+            ha->update();
         ha = nx;
     }
 
@@ -365,7 +365,7 @@ void Fiber::severNow()
         }
         else
         {
-            Fiber * frag = severM(cut.abs-abscissaM());
+            Fiber * frag = severP(cut.abs-abscissaM());
             
             // special case where the PLUS_END section is simply deleted
             if ( cut.stateM == STATE_BLACK )
@@ -445,9 +445,9 @@ void Fiber::planarCut(Vector const& n, const real a, state_t stateP, state_t sta
             cuts.push_back(abscissaPoint(s+abs));
     }
     
-    for ( real abs : cuts )
+    for ( real s : cuts )
     {
-        Fiber * fib = severM(abs-abscissaM());
+        Fiber * fib = severNow(s);
         if ( fib )
         {
             // old PLUS_END converves its state:
@@ -772,8 +772,8 @@ void Fiber::setInteractions(Meca & meca) const
         for ( unsigned i = 0; i < nbSegments(); ++i )
         {
             Vector f = s * dirSegment(i);
-            meca.addForce(this, i  , f);
-            meca.addForce(this, i+1, f);
+            meca.addForce(Mecapoint(this, i  ), f);
+            meca.addForce(Mecapoint(this, i+1), f);
         }
     }
 #endif
@@ -881,7 +881,7 @@ void Fiber::removeHand(Hand * n) const
 void Fiber::updateHands() const
 {
     for ( Hand * ha = handListFront; ha; ha = ha->next() )
-        ha->reinterpolate();
+        ha->update();
 }
 
 
@@ -1069,7 +1069,7 @@ void Fiber::updateFiber()
     {
         Hand * nx = ha->next();
         assert_true(ha->fiber()==this);
-        ha->reinterpolate();
+        ha->update();
         ha->checkFiberRange();
         ha = nx;
     }

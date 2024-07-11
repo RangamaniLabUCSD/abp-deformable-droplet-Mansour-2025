@@ -37,6 +37,11 @@ private:
     real     gspTime;
     
 public:
+    /// Object::TAG = 'v' represents the 'void' pointer
+    static const HandTag TAG = 'n';
+        
+    /// a character identifying the class of this object
+    virtual HandTag tag() const { return TAG; }
     
     /// Property
     NucleatorProp const* prop;
@@ -52,7 +57,7 @@ public:
     void   makeFiber(Simul&, Vector pos, std::string const&, Glossary&);
     
     /// simulate when is not attached
-    void   stepUnattached(Simul&, Vector const& pos);
+    bool   stepUnattached(Simul&, Vector const& pos);
 
     /// simulate when `this` is attached but not under load
     void   stepUnloaded();

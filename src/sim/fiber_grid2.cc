@@ -44,7 +44,7 @@ size_t FiberGrid::hasGrid() const
 }
 
 
-void FiberGrid::tryToAttach(Vector const& place, Hand& ha) const
+bool FiberGrid::tryToAttach(Vector const& place, Hand& ha) const
 {
     // randomize the list order
     std::random_shuffle( allSegments.begin(), allSegments.end() );
@@ -70,11 +70,12 @@ void FiberGrid::tryToAttach(Vector const& place, Hand& ha) const
                 if ( ha.attachmentAllowed(pos) )
                 {
                     ha.attach(pos);
-                    return;
+                    return false;
                 }
             }
         }
     }
+    return false;
 }
 
 

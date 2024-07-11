@@ -14,7 +14,6 @@ class Modulo;
 class Simul;
 class Fiber;
 
-
 /// represents a Mecapoint for steric interactions
 class FatPoint
 {
@@ -343,6 +342,9 @@ public:
     
     /// clear the grid
     void clear()            { pGrid.clear(); }
+
+    /// given a position, find nearby Fiber segments and test attachement of the provided Hand
+    bool tryToAttach(Vector const& place, Hand& ha, Simul& sim) const;
     
 #if ( NB_STERIC_PANES == 1 )
     

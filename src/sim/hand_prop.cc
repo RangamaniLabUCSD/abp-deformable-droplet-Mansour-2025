@@ -24,7 +24,7 @@
 #include "chewer_prop.h"
 #include "mighty_prop.h"
 #include "actor_prop.h"
-
+#include "dimerizer_prop.h"
 
 /// Switch to enable Myosin, Kinesin and Dynein
 #define NEW_HAND_TYPES 1
@@ -45,49 +45,50 @@
  A plain Hand can only bind and unbind from a Fiber.
  Derived classes are available that implement more complex functionalities,
  for example molecular motors or severing enzymes.
- 
+
  List of classes accessible by specifying `hand:activity`:
- 
+
  @ref HandGroup
- 
- `activity`    | Class         | Parameters         | Property     |
- --------------|---------------|--------------------|---------------
- `bind`        | Hand          | @ref HandPar       | HandProp
- `move`        | Motor         | @ref MotorPar      | MotorProp
- `nucleate`    | Nucleator     | @ref NucleatorPar  | NucleatorProp
- `slide`       | Slider        | @ref SliderPar     | SliderProp
- `track`       | Tracker       | @ref TrackerPar    | TrackerProp
- `rescue`      | Rescuer       | @ref RescuerPar    | RescuerProp
- `regulate`    | Regulator     | @ref RegulatorPar  | RegulatorProp
- `cut`         | Cutter        | @ref CutterPar     | CutterProp
- `chew`        | Chewer        | @ref ChewerPar     | ChewerProp
- `mighty`      | Mighty        | @ref MightyPar     | MightyProp
- `act`         | Actor         | @ref ActorPar      | ActorProp
- 
+
+ `activity`    | Class         | Parameters         | Property     | HandTag
+ --------------|---------------|--------------------|------------------------
+ `bind`        | Hand          | @ref HandPar       | HandProp     | 'b'
+ `move`        | Motor         | @ref MotorPar      | MotorProp    | 'm'
+ `nucleate`    | Nucleator     | @ref NucleatorPar  | NucleatorProp| 'n'
+ `slide`       | Slider        | @ref SliderPar     | SliderProp   | 's'
+ `track`       | Tracker       | @ref TrackerPar    | TrackerProp  | 't'
+ `rescue`      | Rescuer       | @ref RescuerPar    | RescuerProp  | 'r'
+ `regulate`    | Regulator     | @ref RegulatorPar  | RegulatorProp| 'e'
+ `cut`         | Cutter        | @ref CutterPar     | CutterProp   | 'c'
+ `chew`        | Chewer        | @ref ChewerPar     | ChewerProp   | 'h'
+ `mighty`      | Mighty        | @ref MightyPar     | MightyProp   | 'i'
+ `act`         | Actor         | @ref ActorPar      | ActorProp    | 'a'
+ `dimerizer`   | Dimerizer     | @ref DimerizerPar  | DimerizerProp| 'd'
+
  <h2>Digital Hands:</h2>
- 
- `activity`    | Class         | Parameters         | Property     |
- --------------|---------------|--------------------|---------------
- `digit`       | Digit         | @ref DigitPar      | DigitProp
- `walk`        | Walker        | @ref WalkerPar     | WalkerProp
- `kinesin`*    | Kinesin       | @ref KinesinPar    | KinesinProp
- `dynein`*     | Dynein        | @ref DyneinPar     | DyneinProp
- `myosin`*     | Myosin        | @ref MyosinPar     | MyosinProp
- 
+
+ `activity`    | Class         | Parameters         | Property     | HandTag
+ --------------|---------------|--------------------|-----------------------
+ `digit`       | Digit         | @ref DigitPar      | DigitProp    | 'g'
+ `walk`        | Walker        | @ref WalkerPar     | WalkerProp   | 'w'
+ `kinesin`*    | Kinesin       | @ref KinesinPar    | KinesinProp  | 'k'
+ `dynein`*     | Dynein        | @ref DyneinPar     | DyneinProp   | 'y'
+ `myosin`*     | Myosin        | @ref MyosinPar     | MyosinProp   | 'o'
+
  * Unfinished classes.
- 
+
  Example:
 
      set hand motor
      {
        binding = 10, 0.05
        unbinding = 0.2, 3
- 
+
        activity = move
        unloaded_speed = 1
        stall_force = 5
      }
- 
+
  */
 HandProp * HandProp::newProperty(const std::string& nom, Glossary& glos)
 {
@@ -120,6 +121,8 @@ HandProp * HandProp::newProperty(const std::string& nom, Glossary& glos)
             return new ActorProp(nom);
         if ( a == "bind" )
             return new HandProp(nom);
+        if ( a == "dimerizer")
+            return new DimerizerProp(nom);
 #if NEW_HAND_TYPES
         if ( a == "kinesin" )
             return new KinesinProp(nom);
@@ -163,7 +166,7 @@ void HandProp::clear()
 #endif
     hold_growing_end   = 0;
     hold_shrinking_end = 0;
-    
+
     activity           = "bind";
     display            = "";
     display_fresh      = false;
@@ -175,11 +178,11 @@ void HandProp::read(Glossary& glos)
     glos.set(binding_rate,  "binding_rate")  || glos.set(binding_rate,  "binding", 0);
     glos.set(binding_range, "binding_range") || glos.set(binding_range, "binding", 1);
     glos.set(binding_key,   "binding_key")   || glos.set(binding_key,   "binding", 2);
-    
+
     glos.set(unbinding_rate,  "unbinding_rate")  || glos.set(unbinding_rate,  "unbinding", 0);
     glos.set(unbinding_force, "unbinding_force") || glos.set(unbinding_force, "unbinding", 1);
-    
-    
+
+
     glos.set(bind_also_end, "bind_also_end", {{"off",       NO_END},
                                               {"plus_end",  PLUS_END},
                                               {"minus_end", MINUS_END},
@@ -189,7 +192,7 @@ void HandProp::read(Glossary& glos)
                                               {"plus_end",  PLUS_END},
                                               {"minus_end", MINUS_END},
                                               {"both_ends", BOTH_ENDS}});
-    
+
     glos.set(bind_end_range, "bind_end_range") || glos.set(bind_end_range, "bind_only_end", 1);
 
 #ifdef BACKWARD_COMPATIBILITY
@@ -203,14 +206,14 @@ void HandProp::read(Glossary& glos)
                                               {"both_ends", BOTH_ENDS}});
     glos.set(bind_end_range,     "bind_end", 1);
 #endif
-    
-    
+
+
     glos.set(hold_growing_end,   "hold_growing_end");
     glos.set(hold_shrinking_end, "hold_shrinking_end");
 #if NEW_BIND_ONLY_FREE_END
     glos.set(bind_only_free_end, "bind_only_free_end");
 #endif
-    
+
     glos.set(activity,           "activity");
     if ( glos.set(display, "display") )
         display_fresh = true;
@@ -223,26 +226,26 @@ void HandProp::read(Glossary& glos)
 
 
 void HandProp::complete(Simul const& sim)
-{    
+{
     if ( sim.time_step() < REAL_EPSILON )
         throw InvalidParameter("simul:time_step is not defined");
-    
+
     binding_range_sqr = square(binding_range);
     binding_prob = -std::expm1(-binding_rate * sim.time_step());
     unbinding_rate_dt = unbinding_rate * sim.time_step();
-    
+
     if ( binding_range < 0 )
         throw InvalidParameter(name()+":binding_range must be >= 0");
-    
+
     if ( binding_rate < 0 )
         throw InvalidParameter(name()+":binding_rate must be positive");
-    
+
     if ( unbinding_rate < 0 )
         throw InvalidParameter(name()+":unbinding_rate must be positive");
-    
+
     if ( hold_growing_end < 0 )
         throw InvalidParameter(name()+":hold_growing_end must be >= 0");
-    
+
     if ( hold_shrinking_end < 0 )
         throw InvalidParameter(name()+":hold_shrinking_end must be >= 0");
 
@@ -250,11 +253,11 @@ void HandProp::complete(Simul const& sim)
     {
         if ( binding_prob > sim.prop->acceptable_prob )
             Cytosim::warn << name() << ":binding_rate is too high: decrease time_step\n";
-    
+
         if ( unbinding_rate_dt > sim.prop->acceptable_prob )
             Cytosim::warn << name() << ":unbinding_rate is too high: decrease time_step\n";
     }
-    
+
 #ifdef BACKWARD_COMPATIBILITY
     if ( unbinding_force == 0 )
     {
@@ -262,7 +265,7 @@ void HandProp::complete(Simul const& sim)
         unbinding_force = INFINITY;
     }
 #endif
-    
+
     if ( unbinding_force <= 0 )
         throw InvalidParameter(name()+":unbinding_force must be > 0");
 
@@ -284,27 +287,28 @@ void HandProp::complete(Simul const& sim)
 /**
  Compare the energy in a link when it binds at its maximum distance,
  with the Thermal energy
- 
+
  @todo the warning may not be relevant for long Links
  */
 void HandProp::checkStiffness(real stiff, real len, real mul, real kT) const
 {
     real dis = binding_range - len;
     real en = ( stiff * dis * dis ) / kT;
-    
+
     if ( en > 10.0 && binding_rate > 0 )
     {
+        Cytosim::warn << "len "<<len<<",binding_range "<<binding_range<<"\n";
         Cytosim::warn << "binding of `" << name() << "' is thermodynamically unfavorable (stiffness * binding_range^2 = " << en << " kT)\n";
         //<< PREF << "you could decrease stiffness or binding_range\n";
     }
-    
-    
+
+
     real ap = exp( stiff * dis * unbinding_force_inv );
-    
+
     if ( ap > 10.0 )
     {
         Cytosim::warn << "hand `" << name() << "' may unbind just after binding:\n"\
-        << PREF << "exp( stiffness * binding_range / unbinding_force ) = " << ap << "\n";
+        << PREF << "exp( stiffness * binding_range / unbinding_for  ce ) = " << ap << "\n";
         //<< PREF << "you could decrease stiffness or binding_range\n";
     }
 }
@@ -315,7 +319,7 @@ void HandProp::write_values(std::ostream& os) const
     write_value(os, "binding",            binding_rate, binding_range);
     write_value(os, "binding_key",        binding_key);
     write_value(os, "unbinding",          unbinding_rate, unbinding_force);
-    
+
     write_value(os, "bind_also_end",      bind_also_end);
     write_value(os, "hold_growing_end",   hold_growing_end);
     write_value(os, "hold_shrinking_end", hold_shrinking_end);
@@ -356,4 +360,3 @@ real HandProp::bindingSectionProb() const
     return 0;
 #endif
 }
-

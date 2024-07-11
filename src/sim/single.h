@@ -15,7 +15,6 @@
 class Fiber;
 class PointDisp;
 
-
 /// A point-like object containing one Hand.
 /**
  A Single contains one pointer to Hand, and consequently
@@ -152,10 +151,14 @@ public:
     virtual Vector  force()       const { return Vector(0,0,0); }
 
     /// Monte-Carlo step if the Hand is not attached
-    virtual void    stepF(Simul&);
+    virtual bool    stepF(Simul&);
     
     /// Monte-Carlo step if the Hand is attached
     virtual void    stepA();
+
+    /// step to complete the last remaining changes required for dimerizer.
+    /// Does not change behavior of any other hand.
+    virtual void    steplastF(){return;}
     
     /// add interactions to a Meca
     virtual void    setInteractions(Meca &) const;

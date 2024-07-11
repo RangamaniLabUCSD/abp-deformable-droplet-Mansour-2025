@@ -8,6 +8,8 @@
 #include "wrist.h"
 #include "wrist_long.h"
 
+#include "hand.h"
+
 //------------------------------------------------------------------------------
 /**
  @copydetails SingleGroup
@@ -46,27 +48,44 @@ void SingleSet::step()
     
     
     Single *const fHead = firstF();
-    Single * obj, * nxt;
-    
-    obj = firstA();
-    while ( obj )
-    {
-        nxt = obj->next();
-        obj->stepA();
-        if ( ! nxt ) break;
-        obj = nxt->next();
-        nxt->stepA();
-    }
-    
+    Single * obj, * nxt, * obj2;
+    Single *const aHead = firstA();
+    std::vector<Single*> sglvec;
     obj = fHead;
     while ( obj )
     {
         nxt = obj->next();
-        obj->stepF(simul);
+        if(obj->stepF(simul))
+            sglvec.push_back(obj);
         if ( ! nxt ) break;
         obj = nxt->next();
-        nxt->stepF(simul);
+        if(nxt->stepF(simul))
+            sglvec.push_back(nxt);
     }
+    ///Go through again to ensure dimerizer calls are taken care of
+    for(auto obj:sglvec)
+        obj->steplastF();
+    // obj=fHead;
+    // while ( obj)
+    // {    
+    //     nxt = obj->next();
+    //     obj->steplastF();
+    //     if ( ! nxt) break;
+    //     obj = nxt->next();
+    //     nxt->steplastF();
+    // }
+    
+    obj = aHead;
+    while ( obj)
+    {    
+        nxt = obj->next();
+        obj->stepA();
+        if ( ! nxt) break;
+        obj = nxt->next();
+        nxt->stepA();
+    }
+    // std::cout<<"SingleSet free size "<<sizeF()<<std::endl;
+    // std::cout<<"SingleSet attached size "<<sizeA()<<std::endl;
 }
 
 
@@ -237,8 +256,8 @@ void SingleSet::shuffle()
 void SingleSet::erase()
 {
     relax();
-    ObjectSet::erase(fList);
     ObjectSet::erase(aList);
+    ObjectSet::erase(fList);
     inventory.clear();
 }
 

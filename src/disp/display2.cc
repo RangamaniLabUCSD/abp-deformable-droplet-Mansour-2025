@@ -16,6 +16,9 @@
 #include "gle_color_list.h"
 #include "glut.h"
 
+#include "hand.h"
+#include "hands/dimerizer.h"
+
 using namespace gle;
 extern Modulo const* modulo;
 
@@ -537,6 +540,17 @@ inline void drawLink(Vector const& a, const Fiber * fib, const PointDisp* disp, 
     }
 }
 
+inline void drawLink(Vector const& a, const PointDisp* disp, const PointDisp* disp2, Vector const& b)
+{
+    if ( disp->perceptible && disp2->perceptible )
+    {
+        disp->color.load();
+        gleVertex(a);
+        disp->color2.load();
+        gleVertex(b);
+    }
+}
+
 inline void drawLink(Vector const& a, const Fiber * fibA, const PointDisp* dispA,
                      Vector const& b, const Fiber * fibB, const PointDisp* dispB)
 {
@@ -583,6 +597,9 @@ void Display2::drawSinglesA(const SingleSet & set) const
         pointSize(prop->point_size);
         glBegin(GL_POINTS);
         for ( Single * obj=set.firstA(); obj ; obj=obj->next() )
+            if (obj->hand()->tag() == Dimerizer::TAG)
+            drawVertex(obj->posHand(), obj->disp());
+            else
             drawVertex(obj->posHand(), obj->fiber(), obj->disp());
         glEnd();
     }
@@ -592,12 +609,21 @@ void Display2::drawSinglesA(const SingleSet & set) const
     {
         lineWidth(prop->link_width);
         glBegin(GL_LINES);
+        // std::cout<<"Attached singles "<<set.sizeA()<<std::endl;
         for ( Single * obj=set.firstA(); obj ; obj=obj->next() )
             if ( obj->hasForce() )
             {
                 Vector ph = obj->posHand();
                 Vector pf = obj->posFoot();
                 if ( modulo ) modulo->fold(pf, ph);
+                // std::cout<<"tags "<<obj->hand()->tag()<<" "<<Dimerizer::TAG<<std::endl;
+                if (obj->hand()->tag() == Dimerizer::TAG){
+                    auto hand1 = obj->hand();
+                    auto hand2 = hand1->hand();
+                    if (hand1 < hand2)
+                        drawLink(ph, obj->disp(), hand2->prop->disp, pf);
+                }
+                else
                 drawLink(ph, obj->fiber(), obj->disp(), pf);
             }
         glEnd();

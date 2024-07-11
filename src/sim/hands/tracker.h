@@ -27,6 +27,11 @@ private:
     Tracker();
 
 public:
+    /// Object::TAG = 'v' represents the 'void' pointer
+    static const HandTag TAG = 't';
+        
+    /// a character identifying the class of this object
+    virtual HandTag tag() const { return TAG; }
     
     /// Property
     TrackerProp const* prop;

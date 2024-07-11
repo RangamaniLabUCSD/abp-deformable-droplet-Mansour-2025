@@ -83,6 +83,10 @@ singles(*this), couples(*this), organizers(*this), events(*this)
 
 Simul::~Simul()
 {
+    //print all attached singled
+    // std::cout<<"Printing all bound hands "<<std::endl;
+    //  for ( Single * si = singles.firstA(); si ; si = si->next() )
+    //     std::cout<<si->hand()<<std::endl;
     erase();
     delete(pMeca1D);
     delete(prop);

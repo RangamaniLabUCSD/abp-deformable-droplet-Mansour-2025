@@ -11,7 +11,6 @@
 #include "lattice.h"
 #include "sim.h"
 
-
 class Hand;
 class Field;
 class Single;
@@ -147,7 +146,10 @@ public:
     void           planarCut(Vector const& n, real a, state_t stateP, state_t stateM);
     
     /// cut fiber at distance `abs` from the MINUS_END; returns section `[ abs - PLUS_END ]`
-    Fiber *        severM(real abs);
+    Fiber *        severP(real abs);
+
+    /// cut fiber at abscissa `abs`; returns section `[ abs - PLUS_END ]`
+    Fiber *        severNow(real abs) { return severP(abs-abscissaM()); }
 
     /// register a cut at abscissa `a` from the ORIGIN, with `m` and `p` the states of the new ends
     void           sever(real a, state_t p, state_t m) { pendingCuts.insert(SeverPos(a, p, m)); }

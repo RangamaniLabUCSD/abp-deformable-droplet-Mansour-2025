@@ -6,6 +6,12 @@
 #include "modulo.h"
 #include "space.h"
 #include "meca.h"
+#include "hand_prop.h"
+#include "hand.h"
+#include "solid.h"
+#include "object_set.h"
+#include "single_set.h"
+#include "simul.h"
 
 extern Modulo const* modulo;
 
@@ -72,6 +78,77 @@ void PointGrid::createCells()
         pGrid.printSummary(std::clog, "StericGrid");
 }
 
+bool PointGrid::tryToAttach(Vector const& place, Hand& ha, Simul& sim) const
+{
+    if(ha.tmphaHand){
+        ha.attach(ha.tmphaHand);
+        ha.tmphaHand=nullptr;
+        return false;
+    }
+    //get the cell index closest to the position in space:
+    assert_true( hasGrid() );
+    
+    //get the cell index closest to the position in space:
+    const auto indx = pGrid.index(place, 0.5);
+    
+    //get the list of rods associated with this cell:
+    FatPointList& fpoint_list = point_list(indx);
+
+    //randomize the list, to make attachments more fair:
+    if ( fpoint_list.size() > 1 )
+    {
+        // randomize the list order
+        //std::random_shuffle(segments.begin(), segments.end());
+        fpoint_list.shuffle();
+    }
+    else if ( fpoint_list.empty() )
+        return false;
+    
+    //std::clog << "tryToAttach has " << segments.size() << " segments\n";
+    //Go through the nearby fat points
+    for ( FatPoint& fp : fpoint_list )
+    {
+        const Mecable* mbl = fp.pnt.mecable();
+        auto mbltag = mbl->tag();
+        auto mblpos = mbl->posP(0);//Check this
+        //Proceed only if the fat point corresponds to a solid
+        if (mbltag == Solid::TAG)
+        {
+            //real dis = INFINITY;
+            // Compute the distance from the hand to the center of solid:
+            Vector vab = place - mblpos;
+            //Correct for periodic boundaries
+            if ( modulo )
+                modulo->fold(vab);
+            //Check if hand is within binding range distance from solid
+            if ( vab.normSqr() < ha.prop->binding_range_sqr ){
+                auto singlelist = sim.singles.collectWrists(mbl);
+                for (Single* sgl:singlelist)
+                {
+                    Hand* ha2 = sgl->hand();
+                    if (ha2->attached())
+                        continue;
+                    //std::cout<<"Hand TAGS "<<ha.tag()<<" "<<ha2->tag()<<std::endl;
+                    if (ha2 == &ha)
+                    continue;
+                    //Check if binding coin toss works
+                    if ( RNG.test(ha.prop->binding_prob) )
+                    {
+                        if ( ha.attachmentAllowed(ha2) && ha2->tmphaHand==nullptr)
+                        {
+                            // std::cout<<"binding key success "<<ha.prop->binding_key<<" "<<ha2->prop->binding_key<<std::endl;
+                            ha.attach(ha2);
+                            ha2->tmphaHand=&ha;
+                            //ha2->attach(&ha);
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return false;
+}
 
 //------------------------------------------------------------------------------
 #pragma mark -

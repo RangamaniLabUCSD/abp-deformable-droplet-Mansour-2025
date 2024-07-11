@@ -4,6 +4,7 @@
 #include "iowrapper.h"
 #include "glossary.h"
 #include "simul.h"
+#include "wrist.h"
 
 
 #if ( 0 )

@@ -10,7 +10,10 @@ class HandMonitor;
 class FiberGrid;
 class FiberProp;
 class Simul;
+class PointGrid;
 
+/// Type for unique class identifier used to read/write objects from file
+typedef int HandTag; 
 
 /// Simulates the stochastic binding/unbinding of a FiberSite
 /**
@@ -60,6 +63,12 @@ protected:
     real           nextDetach;
     
 public:
+
+    /// Object::TAG = 'v' represents the 'void' pointer
+    static const HandTag TAG = 'v';
+    
+    /// a character identifying the class of this object
+    virtual HandTag tag() const { return TAG; }
     
     /// Property is constant, so we do not need to make it private
     HandProp const* prop;
@@ -81,7 +90,6 @@ public:
 
     /// destructor
     virtual ~Hand();
-
 
     /// return next Hand in Fiber's list
     Hand *  next()  const  { return haNext; }
@@ -110,24 +118,30 @@ public:
 
     /// tell if attachment at given site is permitted
     virtual bool   attachmentAllowed(FiberSite&) const;
+
+    /// tell if attachment at given site is permitted
+    virtual bool   attachmentAllowed(Hand* ha) const;
     
     /// bin at position represented by FiberSite
     virtual void   attach(FiberSite const&);
     
     /// attach at specified distance `ab` from FiberEnd (this calls attach(FiberSite))
     void           attach(Fiber * f, real a, FiberEnd ref) { locate(f, f->abscissaFrom(a, ref)); }
+
+    /// attach the two hands together, turn off the second hand
+    void           attach(Hand* ha2);
     
     /// attach at the given end of Fiber (this calls attach(FiberSite))
     void           attachEnd(Fiber * f, FiberEnd end) { locate(f, f->abscissaEnd(end)); }
 
     /// detach, without updating Monitor
     void           detachHand();
-    
+
     /// detach
     virtual void   detach();
 
     /// simulate when the Hand is not attached
-    virtual void   stepUnattached(Simul&, Vector const& pos);
+    virtual bool   stepUnattached(Simul&, Vector const& pos);
 
     /// simulate when the Hand is attached but not under load
     virtual void   stepUnloaded();
@@ -156,6 +170,8 @@ public:
     
     /// return other Hand if part of a Couple, and zero otherwise
     Hand *         otherHand() const;
+
+    HandMonitor* handmonitor() const {return haMonitor;}
 
     /// return position of other Hand, if part of a Couple, or of Single
     Vector         otherPosition() const;

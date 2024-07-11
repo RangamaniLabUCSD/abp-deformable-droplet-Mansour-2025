@@ -4,6 +4,7 @@
 #include "bead_prop.h"
 #include "iowrapper.h"
 #include "glossary.h"
+#include "wrist.h"
 #include "simul.h"
 
 

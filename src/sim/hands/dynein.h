@@ -31,6 +31,11 @@ private:
     real   nextStep;
 
 public:
+    /// Object::TAG = 'v' represents the 'void' pointer
+    static const HandTag TAG = 'y';
+    
+    /// a character identifying the class of this object
+    virtual HandTag tag() const { return TAG; }
     
     /// Property
     DyneinProp const* prop;

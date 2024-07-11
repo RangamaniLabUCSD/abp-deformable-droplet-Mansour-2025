@@ -87,7 +87,7 @@ public:
     void         paintGrid(const Fiber * first, const Fiber * last, real);
     
     /// given a position, find nearby Fiber segments and test attachement of the provided Hand
-    void         tryToAttach(Vector const&, Hand&) const;
+    bool         tryToAttach(Vector const&, Hand&) const;
     
     
     /// return a list of all fiber segments located at a distance D or less from P, except those belonging to `exclude`

@@ -5,6 +5,7 @@
 
 #include <stddef.h>
 #include "node.h"
+#include <functional>
 
 
 /// Doubly linked list of Nodes
@@ -25,6 +26,15 @@
  for ( Node * n = back() ; n ; n = n->prev() );
  
  */
+// Define a functor that acts as a comparator
+class Compare {
+public:
+    int operator()(const Node* a, const Node* b) const {
+        if (a>b) return -1;
+        else if (a==b)return 0;
+        else return 1;
+    }
+};
 
 class NodeList
 {
@@ -102,6 +112,16 @@ public:
     /// quicksort according to given function
     void            quicksort(int (*comp)(const void*, const void*));
 
+    ///
+    // Comparator function compatible with quicksort
+    static int compareNodesWrapper(const void* a, const void* b) {
+        const Node* node1 = static_cast<const Node*>(a);
+        const Node* node2 = static_cast<const Node*>(b);
+        return Compare()(node1, node2);
+    }
+
+    void ascendingsort() {quicksort(NodeList::compareNodesWrapper);;}
+
     /// Rearrange the list by exchanging the portions before and after `p`
     void            permute(Node *);
     
@@ -126,6 +146,5 @@ public:
     /// test coherence of list
     int             bad() const;
 };
-
 
 #endif

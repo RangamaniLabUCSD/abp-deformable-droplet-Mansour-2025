@@ -9,7 +9,7 @@
 
 
 /// enables "bind_only_free_end" to limit binding of Hands to Fibers
-#define NEW_BIND_ONLY_FREE_END 0
+#define NEW_BIND_ONLY_FREE_END 1
 
 class Hand;
 class HandMonitor;

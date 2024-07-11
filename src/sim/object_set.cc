@@ -179,6 +179,7 @@ void ObjectSet::remove(ObjectList const& list)
 void ObjectSet::erase(NodeList & list)
 {
     Node * n = list.front();
+    //if (n) list.ascendingsort();
     while ( n )
     {
         Node * p = n->next();

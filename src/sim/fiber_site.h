@@ -45,6 +45,10 @@ protected:
     
     /// the Fiber of interest, or NULL
     Fiber *       fbFiber;
+
+    /// the Hand of interest, or NULL
+    /// Note: This is the hand that the hand in question is bound to
+    Hand *         haHand=nullptr;
     
     /// the abscissa from the origin of the Fiber
     real          fbAbs;
@@ -61,7 +65,8 @@ protected:
 #endif
 
 public:
-
+/// This pointer is used to place the dimerizer hand to be attached.
+    Hand *         tmphaHand=nullptr;
 #if FIBER_HAS_LATTICE
     /// default constructor
     FiberSite() : fbFiber(nullptr), fbAbs(0), fbLattice(nullptr), fbSite(0) {}
@@ -104,10 +109,10 @@ public:
     const Interpolation& interpolation() const { assert_false(bad()); return inter; }
     
     /// recalculate the Interpolation
-    void         reinterpolate() { inter = fbFiber->interpolate(fbAbs); }
+    void         update()       { inter = fbFiber->interpolate(fbAbs); }
     
     /// move to a different abscissa on the current fiber
-    void         moveTo(real a) { fbAbs = a; reinterpolate(); }
+    void         moveTo(real a) { fbAbs = a; update(); }
 
     /// relocate to MINUS_END of current fiber
     void         relocateM();
@@ -118,19 +123,22 @@ public:
     //--------------------------------------------------------------------------
     
     /// true if not attached
-    bool         unattached()    const { return !fbFiber; }
+    bool         unattached()    const { return !(fbFiber||haHand); }
 
     /// true if attached
-    bool         attached()      const { return fbFiber; }
+    bool         attached()      const {return (fbFiber||haHand); }
     
     /// Fiber to which this is attached, or zero if not attached
     Fiber*       fiber()         const { return fbFiber; }
     
     /// position in space (using current interpolation)
-    Vector       pos()           const { return inter.pos(); }
+    Vector       pos()           const;
+
+    /// Hand to which this is attached, or zero if not attached
+    Hand*       hand()         const { return haHand; }
     
     /// position (recalculated on the fly)
-    Vector       posHand()       const { return fbFiber->pos(fbAbs); }
+    Vector       posHand()       const;
     
     /// direction of Fiber obtained by normalization
     Vector       dir()           const { return inter.dir(); }

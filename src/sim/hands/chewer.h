@@ -38,7 +38,11 @@ private:
     Chewer();
 
 public:
+    /// Object::TAG = 'v' represents the 'void' pointer
+    static const HandTag TAG = 'h';
     
+    /// a character identifying the class of this object
+    virtual HandTag tag() const { return TAG; }
     /// Property
     ChewerProp const* prop;
     

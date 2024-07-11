@@ -19,7 +19,8 @@ OBJ_HANDS := hand.o hand_prop.o\
              chewer.o chewer_prop.o\
              rescuer.o rescuer_prop.o\
              regulator.o regulator_prop.o\
-             mighty.o mighty_prop.o
+             mighty.o mighty_prop.o\
+             dimerizer.o dimerizer_prop.o
 
 OBJ_DIGITS := digit.o digit_prop.o\
               walker.o walker_prop.o\

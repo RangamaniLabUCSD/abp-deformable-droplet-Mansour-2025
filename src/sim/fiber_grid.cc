@@ -238,7 +238,7 @@ void FiberGrid::paintGrid(const Fiber * first, const Fiber * last, real range)
  NOTE:
  The distance at which Fibers are detected is limited to the range given in paintGrid()
  */
-void FiberGrid::tryToAttach(Vector const& place, Hand& ha) const
+bool FiberGrid::tryToAttach(Vector const& place, Hand& ha) const
 {
     assert_true( hasGrid() );
     
@@ -256,7 +256,7 @@ void FiberGrid::tryToAttach(Vector const& place, Hand& ha) const
         segments.shuffle();
     }
     else if ( segments.empty() )
-        return;
+        return false;
     
     //std::clog << "tryToAttach has " << segments.size() << " segments\n";
     
@@ -281,11 +281,12 @@ void FiberGrid::tryToAttach(Vector const& place, Hand& ha) const
                 if ( ha.attachmentAllowed(pos) )
                 {
                     ha.attach(pos);
-                    return;
+                    return false;
                 }
             }
         }
     }
+    return false;
 }
 
 

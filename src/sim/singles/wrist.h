@@ -56,6 +56,9 @@ public:
 
     /// the position of the anchoring point
     Vector  posFoot() const { return anchor.pos(); }
+
+    ///The mecapoint of anchor
+    Mecapoint mecapoint() const {return anchor.vertex0();}
     
     
     /// true if Single creates a link
@@ -66,10 +69,14 @@ public:
     
     
     /// Monte-Carlo step for a free Single
-    void    stepF(Simul&);
+    bool    stepF(Simul&);
     
     /// Monte-Carlo step for a bound Single
     void    stepA();
+
+    /// step to complete the last remaining changes required for dimerizer.
+    /// Does not change behavior of any other hand.
+    virtual void    steplastF();
 
     /// add interactions to a Meca
     void    setInteractions(Meca &) const;

@@ -34,7 +34,7 @@ void Picket::beforeDetachment(Hand const*)
 }
 
 
-void Picket::stepF(Simul& sim)
+bool Picket::stepF(Simul& sim)
 {
     assert_false( sHand->attached() );
 

@@ -46,7 +46,7 @@ public:
     Vector  force() const;
 
     /// Monte-Carlo step for a free Single
-    void    stepF(Simul&);
+    bool    stepF(Simul&);
     
     /// Monte-Carlo step for a bound Single
     void    stepA();

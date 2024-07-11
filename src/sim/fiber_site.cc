@@ -4,6 +4,7 @@
 #include "iowrapper.h"
 #include "simul.h"
 #include "sim.h"
+#include "dimerizer.h"
 
 
 FiberSite::FiberSite(Fiber* f, real a)
@@ -43,6 +44,19 @@ void FiberSite::relocateP()
 //------------------------------------------------------------------------------
 #pragma mark -
 
+Vector FiberSite::pos()           const {  
+    if ( fbFiber )
+    return inter.pos();
+    else
+    return haHand->otherPosition();
+}
+
+Vector FiberSite::posHand()       const { 
+    if ( fbFiber )
+    return fbFiber->pos(fbAbs); 
+    else
+    return haHand->otherPosition();
+}
 
 FiberEnd FiberSite::nearestEnd() const
 {
@@ -105,8 +119,16 @@ void FiberSite::write(Outputter& out) const
             out.writeFloat(fbAbs);
         }
     }
+    else if ( haHand ){
+        //get the underlying single of the hand
+        HandMonitor* s = haHand->handmonitor();
+        Single* s2 = static_cast<Single*>(s);
+        Object::writeReference(out, s2->base()->tag(), s2->base()->identity());
+        //Object::writeReference(out, haHand->handmonitor());
+    }
     else
     {
+        //write reference of other hand
         Object::writeNullReference(out);
     }
 }
@@ -160,7 +182,7 @@ void FiberSite::read(Inputter& in, Simul& sim)
             throw InvalidIO("unexpected class in FiberSite");
         }
 
-        reinterpolate();
+        update();
         checkAbscissa();
     }
 }
@@ -217,6 +239,7 @@ int FiberSite::checkAbscissa() const
 
 int FiberSite::bad() const
 {
+    if (fbFiber){
     if ( fbFiber != inter.mecable() )
     {
         std::cerr << "Interpolation mismatch " << fbFiber << " " << inter.mecable() << std::endl;
@@ -238,6 +261,7 @@ int FiberSite::bad() const
             std::cerr << "    updated      " << fbFiber->abscissaPoint(pi.point1()+pi.coef1()) << "\n";
             return 8;
         }
+    }
     }
     return 0;
 }

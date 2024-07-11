@@ -9,7 +9,7 @@
 #include "fiber_grid.h"
 #include "simul.h"
 #include "sim.h"
-
+#include "dimerizer.h"
 //------------------------------------------------------------------------------
 
 Hand::Hand(HandProp const* p, HandMonitor* m)
@@ -24,6 +24,7 @@ Hand::~Hand()
 {
     // the Hands should be detached in ~Couple and ~Single
     assert_true(!fbFiber);
+    assert_true(!haHand);
     prop = nullptr;
 }
 
@@ -75,7 +76,7 @@ void Hand::relocate(Fiber* f)
 #endif
     }
     f->addHand(this);
-    reinterpolate();
+    update();
 }
 
 
@@ -96,7 +97,7 @@ void Hand::relocate(Fiber* f, const real a)
         f->addHand(this);
     }
     fbAbs = a;
-    reinterpolate();
+    update();
 }
 
 
@@ -195,18 +196,40 @@ bool Hand::attachmentAllowed(FiberSite& sit) const
     return haMonitor->allowAttachment(sit);
 }
 
+/// tell if attachment at given site is permitted
+bool Hand::attachmentAllowed(Hand* ha) const {
+    assert_false( ha->attached() );
+    const HandProp* haprop = ha->prop;
+    unsigned int bkey = haprop->binding_key;
+    // std::cout<<"Binding key check "<<prop->binding_key<<" "<<bkey<<std::endl;
+    /*
+     Check that the two binding keys match, allowing binding 
+     according to the BITWISE AND of the two keys:
+     */
+    if ( prop->binding_key == bkey ) 
+        return true;
+    else
+        //Note since this call only happens 
+        // for a dimerizer single, it won't check 
+        //if the other hand is
+        //bound to a fiber.
+        return false;
+
+}
+
 
 void Hand::locate(Fiber* f, real a)
 {
     assert_true(f);
     assert_true(!fbFiber);
+    assert_true(!haHand);
     //assert_true(f->abscissaM() <= a + REAL_EPSILON);
     //assert_true(a <= f->abscissaP() + REAL_EPSILON);
 
     fbAbs   = a;
     fbFiber = f;
     f->addHand(this);
-    reinterpolate();
+    update();
     haMonitor->afterAttachment(this);
     nextDetach = RNG.exponential();
 }
@@ -216,7 +239,7 @@ void Hand::attach(FiberSite const& s)
 {
     assert_true(s.attached());
     assert_true(!fbFiber);
-
+    assert_true(!haHand);
     locate(s.fiber(), s.abscissa());
 #if FIBER_HAS_LATTICE
     fbLattice = s.lattice();
@@ -224,13 +247,37 @@ void Hand::attach(FiberSite const& s)
 #endif
 }
 
+//NOTE THIS function is only to be called in a dimerizer set up.
+void Hand::attach(Hand* ha2)
+{
+    // std::cout<<"-------"<<std::endl;
+    // std::cout<<"Hand 1 attached "<<attached()<<" "<<this<<" "<<ha2->attached()<<" "<<ha2<<" tags "<<prop->binding_key<<" "<<ha2->prop->binding_key<<std::endl;
+    // std::cout<<"-------"<<std::endl;
+
+    // Make sure hand is not attached to a fiber
+    assert_true(!fbFiber);
+    haHand = ha2;
+    haMonitor->afterAttachment(this);
+
+    if ( this<ha2 ){
+        //Only allow unbinding reaction once
+        nextDetach = RNG.exponential();
+    }
+}
 
 void Hand::detach()
 {
+    auto ha2=haHand;
+    // std::cout<<"Hands detached "<<this<<" "<<ha2<<" fiber "<<fbFiber<<std::endl;
+    // std::cout<<"nextDetach "<<nextDetach<<std::endl;
     assert_true( attached() );
     haMonitor->beforeDetachment(this);
-    fbFiber->removeHand(this);
-    fbFiber = nullptr;
+    if (fbFiber){
+        fbFiber->removeHand(this);
+        fbFiber = nullptr;
+    }
+    else
+        haHand = nullptr;
 #if FIBER_HAS_LATTICE
     fbLattice = nullptr;
 #endif
@@ -240,8 +287,12 @@ void Hand::detach()
 void Hand::detachHand()
 {
     assert_true( attached() );
+    if (fbFiber){
     fbFiber->removeHand(this);
     fbFiber = nullptr;
+    }
+    else
+    haHand = nullptr;
 #if FIBER_HAS_LATTICE
     fbLattice = nullptr;
 #endif
@@ -284,11 +335,15 @@ void Hand::handleDisassemblyP()
 /**
  Test for attachment to nearby Fibers
  */
-void Hand::stepUnattached(Simul& sim, Vector const& pos)
+bool Hand::stepUnattached(Simul& sim, Vector const& pos)
 {
     assert_true( unattached() );
-
-    sim.fiberGrid.tryToAttach(pos, *this);
+    auto tagval = this->tag();
+    //std::cout<<"Step unattached Hand "<<this<<std::endl;
+    if(tagval==Dimerizer::TAG)
+        return sim.pointGrid.tryToAttach(pos, *this, sim);
+    else
+        return sim.fiberGrid.tryToAttach(pos, *this);
 }
 
 

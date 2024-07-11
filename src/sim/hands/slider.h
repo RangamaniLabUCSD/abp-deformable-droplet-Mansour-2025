@@ -28,6 +28,11 @@ private:
     Slider();
     
 public:
+    /// Object::TAG = 'v' represents the 'void' pointer
+    static const HandTag TAG = 's';
+        
+    /// a character identifying the class of this object
+    virtual HandTag tag() const { return TAG; }
     
     /// Property
     SliderProp const* prop;

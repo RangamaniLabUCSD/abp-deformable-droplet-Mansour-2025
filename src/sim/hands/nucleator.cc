@@ -111,7 +111,7 @@ void Nucleator::makeFiber(Simul& sim, Vector pos, std::string const& fiber_type,
 /**
  Does not attach nearby Fiber, but can nucleate
  */
-void Nucleator::stepUnattached(Simul& sim, Vector const& pos)
+bool Nucleator::stepUnattached(Simul& sim, Vector const& pos)
 {
     assert_false( attached() );
     
@@ -123,6 +123,7 @@ void Nucleator::stepUnattached(Simul& sim, Vector const& pos)
         try {
             Glossary opt(prop->fiber_spec);
             makeFiber(sim, pos, prop->fiber_type, opt);
+            return true;
         }
         catch( Exception & e )
         {
@@ -130,6 +131,7 @@ void Nucleator::stepUnattached(Simul& sim, Vector const& pos)
             throw;
         }
     }
+    return false;
 }
 
 

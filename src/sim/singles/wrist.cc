@@ -3,6 +3,7 @@
 #include "simul.h"
 #include "meca.h"
 #include "modulo.h"
+#include "dimerizer.h"
 
 
 extern Modulo const* modulo;
@@ -38,6 +39,7 @@ Wrist::Wrist(SingleProp const* sp, Mecable const* mec, unsigned ref, Vector pos)
 {
     assert_true(mec);
     anchor.set(mec, ref, pos);
+
     
 #if ( 0 )
     if ( p->diffusion > 0 )
@@ -63,25 +65,76 @@ Vector Wrist::force() const
 }
 
 
-void Wrist::stepF(Simul& sim)
+bool Wrist::stepF(Simul& sim)
 {
-    assert_false( sHand->attached() );
+    // std::cout<<"stepF Hand "<<sHand<<" Hand "<<sHand->hand()<<" Fiber "<<sHand->fiber()<<" TAG "<<sHand->tag()<<std::endl;
+    // if(sHand->tag()==Dimerizer::TAG){
+    //     Dimerizer* d2 = static_cast<Dimerizer*>(sHand);
+    // std::cout<<"hasbeentossed "<<d2->hasbeentossed<<" marktodetach "<<d2->marktodetach<<std::endl;
+    // }
 
-    sHand->stepUnattached(sim, posFoot());
+    //if the hand is bound and sHand is NOT nullptr, return
+    // if(sHand->tag()==Dimerizer::TAG &&
+    // sHand->attached() == true && sHand->hand()!=nullptr)
+    //     return;
+    assert_false( sHand->attached() );
+    //std::cout<<"Hand attached status "<<sHand->attached() <<std::endl;
+    return sHand->stepUnattached(sim, posFoot());
 }
 
 
 void Wrist::stepA()
 {
+    // std::cout<<"stepA Hand "<<sHand<<" attached hand "<<sHand->hand()<<" fiber "<<sHand->fiber()<<std::endl;
+    // std::cout<<"attached? "<<sHand->attached()<<" null? "<<(sHand->hand()==nullptr)<<" TAG check "<<
+    // (sHand->tag())<<" binding key "<<sHand->prop->binding_key<<std::endl;
+    //if the hand is free and sHand is nullptr, return
+    // if(sHand->tag()==Dimerizer::TAG && sHand->attached() == false && sHand->hand()==nullptr)
+    //     return;
+    
     assert_true( sHand->attached() );
     Vector f = force();
     sHand->stepLoaded(f, f.norm());
+    // std::cout<<"attached? "<<sHand->attached()<<" null? "<<(sHand->hand()==nullptr)<<" TAG check "<<
+    // (sHand->tag())<<" binding key "<<sHand->prop->binding_key<<std::endl;
+}
+
+void    Wrist::steplastF()
+{
+    ///check if hand is dimerizer
+    // std::cout<<"last Hand "<<sHand<<std::endl;
+    if (sHand->tag()==Dimerizer::TAG){
+        auto otherhand = sHand->hand();
+        //std::cout<<"tmphaHand exists? "<<otherhand->tmphaHand<<std::endl;
+        ///check if tmphaHand exists
+        if( otherhand->tmphaHand ){
+            assert_true(otherhand->tmphaHand==sHand);
+            assert_false(otherhand->attached());
+            otherhand->attach(sHand);
+            otherhand->tmphaHand=nullptr;
+        }
+        // std::cout<<"tmphaHand exists? "<<sHand->tmphaHand<<std::endl;
+        // ///check if tmphaHand exists
+        // if( sHand->tmphaHand ){
+        //     assert_false(attached())
+        //     sHand->attach(sHand->tmphaHand);
+        //     sHand->tmphaHand=nullptr;
+        // }
+    }
 }
 
 
 void Wrist::setInteractions(Meca & meca) const
 {
-    anchor.addLink(meca, sHand->interpolation(), prop->stiffness);
+    //Need to edit to add interaction here.
+    //See chain.cc line 1421
+    if (sHand->tag() == Dimerizer::TAG){
+        ////////////////--thishand->boundhand->Single(Wrist)
+        Wrist* wrist2 = static_cast<Wrist*>(sHand->hand()->handmonitor());
+        anchor.addLink(meca, wrist2->mecapoint(), prop->stiffness);
+    }
+    else
+        anchor.addLink(meca, sHand->interpolation(), prop->stiffness);
 }
 
 

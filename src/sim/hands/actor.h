@@ -24,6 +24,12 @@ private:
     Actor();
 
 public:
+
+    /// Object::TAG = 'v' represents the 'void' pointer
+    static const HandTag TAG = 'a';
+    
+    /// a character identifying the class of this object
+    virtual HandTag tag() const { return TAG; }
     
     /// Property
     ActorProp const* prop;
