@@ -138,7 +138,10 @@ void FiberSite::read(Inputter& in, Simul& sim)
 {
     ObjectTag tag = 0;
     Object * w = sim.readReference(in, tag);
-    fbFiber = static_cast<Fiber*>(w);
+    if ( tag == Fiber::TAG )
+    {
+        fbFiber = static_cast<Fiber*>(w);
+    }
 
     if ( w )
     {
