@@ -9,6 +9,7 @@
 #include "exceptions.h"
 #include "print_color.h"
 #include "picket.h"
+#include "glapp.h"
 
 //------------------------------------------------------------------------------
 
@@ -437,6 +438,7 @@ size_t SimThread::readInput(size_t max_nb_lines)
             //write(STDOUT_FILENO, ">>>> ", 5); write(STDOUT_FILENO, str, strlen(str));
             try {
                 evaluate(str);
+                glApp::flashText0(str);
             }
             catch ( Exception & e ) {
                 std::cerr << e.brief() << str;
