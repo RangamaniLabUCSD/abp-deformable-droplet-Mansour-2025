@@ -46,6 +46,9 @@ protected:
     /// the Fiber of interest, or NULL
     Fiber *       fbFiber;
 
+    /// the Dimer of interest, or NULL
+    Fiber *       fbDimer;
+
     /// the Hand of interest, or NULL
     /// Note: This is the hand that the hand in question is bound to
     Hand *         haHand=nullptr;

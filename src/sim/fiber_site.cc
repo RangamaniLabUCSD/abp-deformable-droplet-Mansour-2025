@@ -143,6 +143,11 @@ void FiberSite::read(Inputter& in, Simul& sim)
         fbFiber = static_cast<Fiber*>(w);
     }
 
+    if ( tag == Dimerizer::TAG )
+    {
+        fbDimer = static_cast<Fiber*>(w);
+    }
+
     if ( w )
     {
         //std::clog << "FiberSite::read() " << (char)tag << std::endl;
@@ -155,6 +160,11 @@ void FiberSite::read(Inputter& in, Simul& sim)
                 fbSite = fbLattice->index(fbAbs);
 #endif
         }
+        
+        else if ( tag == Dimerizer::TAG )
+        {
+        }
+
         else if ( tag == Fiber::TAG_LATTICE )
         {
 #ifdef BACKWARD_COMPATIBILITY
@@ -185,8 +195,10 @@ void FiberSite::read(Inputter& in, Simul& sim)
             throw InvalidIO("unexpected class in FiberSite");
         }
 
-        reinterpolate();
-        checkAbscissa();
+        if ( tag != Dimerizer::TAG ){
+            reinterpolate();
+            checkAbscissa();
+        }
     }
 }
 
