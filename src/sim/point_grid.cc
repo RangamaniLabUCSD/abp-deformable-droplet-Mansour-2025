@@ -106,11 +106,19 @@ bool PointGrid::tryToAttach(Vector const& place, Hand& ha, Simul& sim) const
     
     //std::clog << "tryToAttach has " << segments.size() << " segments\n";
     //Go through the nearby fat points
+    // Try to get the solid attached to the single
+    Single* hasgl = static_cast<Single*>(ha.handmonitor());
+    auto hambl = hasgl->base();
     for ( FatPoint& fp : fpoint_list )
     {
         const Mecable* mbl = fp.pnt.mecable();
         auto mbltag = mbl->tag();
         auto mblpos = mbl->posP(0);//Check this
+	//Check if the fatpoint (solid) is the same solid as the one 
+        // ha is attached to
+        // If it is the same solid, skip.
+        if (mbl == hambl)
+            continue;
         //Proceed only if the fat point corresponds to a solid
         if (mbltag == Solid::TAG)
         {
