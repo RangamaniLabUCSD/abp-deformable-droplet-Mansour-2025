@@ -1,0 +1,114 @@
+
+
+
+export all *
+ {
+   append = 1
+   binary = 0
+ }
+
+set simul system
+{
+    dim = 3
+    time_step = 0.002
+    viscosity = 0.5
+    steric = 1, 1
+}
+
+set system display
+{
+    back_color = white;
+    style = 1;
+}
+
+set space cell
+{
+    shape = sphere
+    display = {visible = 1; color = 0x64646450;}
+}
+
+new cell
+{
+    radius = 1.0
+}
+
+set fiber actin
+{
+    rigidity = 0.075
+    segmentation = 0.1
+    confine = inside, 200, cell
+    display = (
+        line = 10, 1
+        color = 0x5CBA47FF
+
+        % Colors matching each state
+        end_color = black, green, yellow, orange, red
+        plus_end = 20, fins
+        minus_end = 20, fins
+        )
+    
+    activity = capping
+    growing_speed = 0.0103, 0        % plus end, minus end
+    shrinking_speed = 0, 0     % plus end, minus end
+    growing_force = 10.0, 10.0        % plus end, minus end
+    max_length = inf
+    steric = 1, 0.0035
+
+    % capping parameters
+    capping_rate = 1.0, 0 
+    uncapping_rate = 1.0, 0
+    capped = 0, 0
+}
+
+set hand binder
+{
+    %Rate and distance
+    binding = 10.0, 0.03
+    %rate and force
+    unbinding = 1.0, 10.0
+    display = ( size=0; color=yellow; )
+}
+
+set single graftedcrosslinker
+{
+    hand = binder
+    stiffness = 10.0
+    diffusion = 10.0
+}
+
+set solid VASP
+{
+    confine = inside, 100
+    display = ( style=7; coloring=0; color=0xE6222880; )
+    steric = 1
+}
+
+% radius 30 nm with 4 spots, each 1 crosslinker
+new 1000 VASP
+{
+    %separation < 2R
+    separation = 0.054
+    deviation = 0.001
+    %radius
+    sphere1 = 0 0 0, 0.03, 1 graftedcrosslinker, 1 graftedcrosslinker, 1 graftedcrosslinker, 1 graftedcrosslinker
+}
+
+new 30 actin
+{
+    length = 0.1
+
+    % State definitions
+    % STATE_WHITE  = 0,   ///<  Used to indicate a non-dynamic end
+    % STATE_GREEN  = 1,   ///<  First dynamic state: usually growing
+    % STATE_YELLOW = 2,   ///<  Intermediate dynamic state
+    % STATE_ORANGE = 3,   ///<  Intermediate dynamic state
+    % STATE_RED    = 4,   ///<  Third dynamic state: usually shrinking
+
+    end_state = 1, 4
+}
+
+run 300000 system 
+{
+    nb_frames = 600
+    binary = 0
+}
