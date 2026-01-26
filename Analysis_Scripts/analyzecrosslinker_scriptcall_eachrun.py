@@ -1,4 +1,4 @@
-import Traj_analyze_fracoccupied as main
+import Main_Analyze_Trajectory as main
 import sys
 N = int(sys.argv[1])
 Rval = int(sys.argv[2])
