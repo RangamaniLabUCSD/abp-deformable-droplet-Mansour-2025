@@ -3,6 +3,6 @@ Authors: Daniel Mansour, Dominique Jordan, Caleb Walker, Aravind Chandrasekaran,
 
 This repository has all the source code, input files, analysis scripts, and source data associated with https://doi.org/10.1101/2025.06.13.659650
 
-The directories are organized by figure number with subdirectories for the analysis output files used to generate each figure. The spreadsheets containing the experimental Source Data are organized by figure number.
+The directories are organized by figure number with subdirectories for the analysis output files used to generate each figure. The spreadsheets containing the experimental Source Data are organized by figure number. Figures can be generated from these data files by using the Figures.ipynb Jupyter Notebook and following the sections within.
 
 The modified Cytosim source code is located in the Source_Code directory.
